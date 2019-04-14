@@ -17,16 +17,24 @@ w1 = pd.read_pickle('./WordEmbedding/wembed_1.pkl')
 w3 = pd.read_pickle('./WordEmbedding/wembed_3.pkl')
 w5 = pd.read_pickle('./WordEmbedding/wembed_5.pkl')
 
-# Joshi Paper (4th) Paper
-jc = pd.read_pickle('./Context_Incongruity/jc_features_df.pkl')
+# Bush Paper (3rd)
+bf = pd.read_pickle('./Bush/buschmeier.pkl')
+bf_1 = pd.concat([bf, w1.iloc[:, 0:4]], axis=1, ignore_index=True)
+bf_3 = pd.concat([bf, w3.iloc[:, 0:4]], axis=1, ignore_index=True)
+bf_5 = pd.concat([bf, w5.iloc[:, 0:4]], axis=1, ignore_index=True)
 
-jc_1 = pd.concat([jc, w1.iloc[:, 0:4]], axis=1, ignore_index=True)
-jc_3 = pd.concat([jc, w3.iloc[:, 0:4]], axis=1, ignore_index=True)
-jc_5 = pd.concat([jc, w5.iloc[:, 0:4]], axis=1, ignore_index=True)
+# # Joshi Paper (4th) Paper
+# jc = pd.read_pickle('./Context_Incongruity/jc_features_df.pkl')
+
+# jc_1 = pd.concat([jc, w1.iloc[:, 0:4]], axis=1, ignore_index=True)
+# jc_3 = pd.concat([jc, w3.iloc[:, 0:4]], axis=1, ignore_index=True)
+# jc_5 = pd.concat([jc, w5.iloc[:, 0:4]], axis=1, ignore_index=True)
 
 # Training
 # Initialize model
-svmmodel = svm.SVC(gamma='scale', class_weight='balanced', C=20.0, cache_size=1000)
+svmmodel = svm.SVC(gamma='scale', class_weight='balanced',
+                   C=20.0, cache_size=1000)
+
 
 def classify(data, labels, model):
     # 10 is pseudo random number
@@ -35,38 +43,43 @@ def classify(data, labels, model):
     i = 0
     for train, test in kfold.split(data):
         print(i)
-        X_train, X_test, y_train, y_test = np.array(data.iloc[train]), np.array(data.iloc[test]), labels[train], labels[test]
+        X_train, X_test, y_train, y_test = np.array(data.iloc[train]), np.array(
+            data.iloc[test]), labels[train], labels[test]
         model.fit(X_train, y_train.ravel())
         y_pred = model.predict(X_test)
         metric = precision_recall_fscore_support(y_test, y_pred)
         scores.append(metric)
-        print("Done Interation: %d"%(i))
+        print("Done Interation: %d" % (i))
         print(scores)
         i += 1
     return scores
 
+
 scores = []
 
-temp = classify(jc, labels, svmmodel)
+temp = classify(bf, labels, svmmodel)
 scores.append(temp)
 
-# temp = classify(jc_1, labels, svmmodel)
-# scores.append(temp)
+temp = classify(bf_1, labels, svmmodel)
+scores.append(temp)
 
-# temp = classify(jc_3, labels, svmmodel)
-# scores.append(temp)
+temp = classify(bf_3, labels, svmmodel)
+scores.append(temp)
 
-# temp = classify(jc_5, labels, svmmodel)
-# scores.append(temp)
+temp = classify(bf_5, labels, svmmodel)
+scores.append(temp)
 
-for i in range(3, 4):
+for i in range(0, 4):
     plt.title('Performance')
-    plt.plot([x for x in range(len(scores[i]))],[score[0][1] for score in scores[i]])
-    plt.plot([x for x in range(len(scores[i]))],[score[1][1] for score in scores[i]])
-    plt.plot([x for x in range(len(scores[i]))],[score[2][1] for score in scores[i]])
+    plt.plot([x for x in range(len(scores[i]))], [score[0][1]
+                                                  for score in scores[i]])
+    plt.plot([x for x in range(len(scores[i]))], [score[1][1]
+                                                  for score in scores[i]])
+    plt.plot([x for x in range(len(scores[i]))], [score[2][1]
+                                                  for score in scores[i]])
     plt.legend(['Precison', 'Recall', 'F1-Score'])
-    plt.savefig('JC_Un'+str(i))
-    plt.show()
+    plt.savefig('B'+str(i))
+    # plt.show()
 
     confidence = []
     p_scores = [score[0][1] for score in scores[i]]
@@ -81,12 +94,14 @@ for i in range(3, 4):
     lower = max(0.0, np.percentile(f_scores, p))
     p = (alpha+((1.0-alpha)/2.0)) * 100
     upper = min(1.0, np.percentile(f_scores, p))
-    print('%.1f confidence interval: %.1f and %.1f' % (alpha*100, lower*100, upper*100))
-    with open('JC_Stats_Un'+str(i)+'.txt', 'w') as f:
-        f.write('F-Score Mean: %f \n'%(np.array(f_scores).mean()))
-        f.write('P-Score Mean: %f \n'%(np.array(p_scores).mean()))
-        f.write('R-Score Mean: %f \n'%(np.array(r_scores).mean()))
-        f.write('%.1f confidence interval: %.1f and %.1f \n' % (alpha*100, lower*100, upper*100))
+    print('%.1f confidence interval: %.1f and %.1f' %
+          (alpha*100, lower*100, upper*100))
+    with open('B_Stats'+str(i)+'.txt', 'w') as f:
+        f.write('F-Score Mean: %f \n' % (np.array(f_scores).mean()))
+        f.write('P-Score Mean: %f \n' % (np.array(p_scores).mean()))
+        f.write('R-Score Mean: %f \n' % (np.array(r_scores).mean()))
+        f.write('%.1f confidence interval: %.1f and %.1f \n' %
+                (alpha*100, lower*100, upper*100))
         f.write('Precision: ')
         f.write(' '.join(str(x) for x in p_scores))
         f.write('\n')

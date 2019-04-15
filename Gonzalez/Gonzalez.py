@@ -65,7 +65,7 @@ def getInterjection(input,i_interj):
 	return output
 
 
-f = open('dataset','r', encoding='utf-8-sig')
+f = open('../dataset','r', encoding='utf-8-sig')
 qid = 0
 dict = {}
 word_count = {}
@@ -124,7 +124,7 @@ i_dotdot = index+3
 i_interj = index+4
 i_liwcbase = index+5
 print(str(i_excl)+' '+str(i_quest)+' '+str(i_dotdot)+' '+str(i_interj)+' '+str(i_liwcbase))
-f = open('dataset','r', encoding='utf-8-sig')
+f = open('../dataset','r', encoding='utf-8-sig')
 f_o1 = open('out.txt','w')
 f_o1.write('# Vocabulary size:'+str(index)+'\n')
 for line in f:

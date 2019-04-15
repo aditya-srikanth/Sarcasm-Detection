@@ -169,7 +169,7 @@ def getActions(input):
     return output.strip()
 
 
-f = open('dataset', 'r', encoding='utf-8-sig')
+f = open('../dataset', 'r', encoding='utf-8-sig')
 qid = 0
 dict = {}
 word_count = {}
@@ -217,7 +217,7 @@ data = np.zeros((num_examples, final_features))
 line_index = 0
 
 print(str(i_excl)+' '+str(i_quest)+' '+str(i_dotdot)+' '+str(i_interj))
-f = open('./dataset', 'r', encoding='utf-8-sig')
+f = open('./../dataset', 'r', encoding='utf-8-sig')
 f_o1 = open('output.txt', 'w')
 f_o1.write('# Vocabulary size:'+str(index)+'\n')
 for line in f:

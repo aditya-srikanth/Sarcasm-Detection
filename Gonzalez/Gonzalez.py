@@ -1,5 +1,7 @@
 import sys
 import re
+import pandas as pd
+import numpy as np 
 
 # LIWC features
 
@@ -29,6 +31,9 @@ def getLIWCFeatures(input,i_base):
 			liwc_dict[category] += 1
 	output = ''
 	output += str(i_base)+':'+str(liwc_dict['LP'])+' '+str(i_base+1)+':'+str(liwc_dict['PP'])+' '+str(i_base+2)+':'+str(liwc_dict['PC'])
+	row[i_base] = liwc_dict['LP']
+	row[i_base+1] = liwc_dict['PP']
+	row[i_base+2] = liwc_dict['PC']
 	return output
 			
 
@@ -62,6 +67,7 @@ def getInterjection(input,i_interj):
 		count += input.count(interj_arr[i])
 
 	output = str(i_interj)+':'+str(count)
+	row[i_interj] = count
 	return output
 
 
@@ -75,8 +81,11 @@ index = 1
 def getPunctuation(input,i_excl,i_quest,i_dotdot):
 	output = ''
 	output += str(i_excl)+':'+str(input.count('!')) +' '
+	row[i_excl] = input.count('!')
 	output += str(i_quest)+':'+str(input.count('?'))+' '
+	row[i_quest] = input.count('?')
 	output += str(i_dotdot)+':'+str(input.count('...'))
+	row[i_dotdot] = input.count('...')
 	return output.strip()
 
 def getActions(input):
@@ -96,8 +105,9 @@ def getActions(input):
 			action = False
 	return output.strip()
 
-
+num_examples = 0
 for line in f:
+	num_examples += 1
 	contents = line.split('\t')
 	if len(contents) ==2 and "Scene" not in line:
 		dialogue = contents[0].lower()
@@ -118,11 +128,20 @@ for line in f:
 				word_count[word] += word_count[word] 
 
 
+
 i_excl = index+1
 i_quest = index+2
 i_dotdot = index+3
 i_interj = index+4
 i_liwcbase = index+5
+
+final_features = i_liwcbase + 2
+row = np.array((1, 15027))
+data = np.zeros((num_examples, 15027))
+line_index = 0
+print(final_features)
+
+
 print(str(i_excl)+' '+str(i_quest)+' '+str(i_dotdot)+' '+str(i_interj)+' '+str(i_liwcbase))
 f = open('../dataset','r', encoding='utf-8-sig')
 f_o1 = open('out.txt','w')
@@ -137,6 +156,7 @@ for line in f:
 		
 	
 	if len(contents) >=2:
+		row = np.zeros(15027)
 		#print(contents)
 		word_ids = [1]
 		dialogue = contents[0].lower()
@@ -172,9 +192,14 @@ for line in f:
 		#print(word_ids)
 		for id in word_ids:
 			s_line += str(id)+':1 '
-		
+			row[id] = 1
+		data[line_index] = row
+		line_index += 1
 		s_line += s_punct+' '+s_interj+' '+s_liwc +' '
 		# s_line += '# '+line
 		s_line = s_line.strip()
 		f_o1.write(s_line+'\n')
 		
+df = pd.DataFrame(data[:, 1:])
+print(df.shape)
+df.to_pickle('gonz_df.pkl')

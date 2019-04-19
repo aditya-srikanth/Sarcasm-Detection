@@ -13,18 +13,18 @@ import matplotlib.pyplot as plt
 df = pd.read_csv('./final_data.tsv', sep='\t')
 labels = np.array(list(df['label']))
 
-w1 = pd.read_pickle('./WordEmbedding/wembed_1.pkl')
-w3 = pd.read_pickle('./WordEmbedding/wembed_3.pkl')
-w5 = pd.read_pickle('./WordEmbedding/wembed_5.pkl')
+# w1 = pd.read_pickle('./WordEmbedding/wembed_1.pkl')
+# w3 = pd.read_pickle('./WordEmbedding/wembed_3.pkl')
+# w5 = pd.read_pickle('./WordEmbedding/wembed_5.pkl')
 
-# Bush Paper (3rd)
-bf = pd.read_pickle('./Bush/buschmeier.pkl')
-bf_1 = pd.concat([bf, w1.iloc[:, 0:4]], axis=1, ignore_index=True)
-bf_3 = pd.concat([bf, w3.iloc[:, 0:4]], axis=1, ignore_index=True)
-bf_5 = pd.concat([bf, w5.iloc[:, 0:4]], axis=1, ignore_index=True)
+# # Bush Paper (3rd)
+# bf = pd.read_pickle('./Bush/buschmeier.pkl')
+# bf_1 = pd.concat([bf, w1.iloc[:, 0:4]], axis=1, ignore_index=True)
+# bf_3 = pd.concat([bf, w3.iloc[:, 0:4]], axis=1, ignore_index=True)
+# bf_5 = pd.concat([bf, w5.iloc[:, 0:4]], axis=1, ignore_index=True)
 
 # # Joshi Paper (4th) Paper
-# jc = pd.read_pickle('./Context_Incongruity/jc_features_df.pkl')
+jc = pd.read_pickle('./Context_Incongruity/jc_features_df.pkl')
 
 # jc_1 = pd.concat([jc, w1.iloc[:, 0:4]], axis=1, ignore_index=True)
 # jc_3 = pd.concat([jc, w3.iloc[:, 0:4]], axis=1, ignore_index=True)
@@ -57,19 +57,19 @@ def classify(data, labels, model):
 
 scores = []
 
-temp = classify(bf, labels, svmmodel)
+temp = classify(jc, labels, svmmodel)
 scores.append(temp)
 
-temp = classify(bf_1, labels, svmmodel)
-scores.append(temp)
+# temp = classify(bf_1, labels, svmmodel)
+# scores.append(temp)
 
-temp = classify(bf_3, labels, svmmodel)
-scores.append(temp)
+# temp = classify(bf_3, labels, svmmodel)
+# scores.append(temp)
 
-temp = classify(bf_5, labels, svmmodel)
-scores.append(temp)
+# temp = classify(bf_5, labels, svmmodel)
+# scores.append(temp)
 
-for i in range(0, 4):
+for i in range(0, 1):
     plt.title('Performance')
     plt.plot([x for x in range(len(scores[i]))], [score[0][1]
                                                   for score in scores[i]])
@@ -78,7 +78,7 @@ for i in range(0, 4):
     plt.plot([x for x in range(len(scores[i]))], [score[2][1]
                                                   for score in scores[i]])
     plt.legend(['Precison', 'Recall', 'F1-Score'])
-    plt.savefig('B'+str(i))
+    plt.savefig('J_BASE'+str(i))
     # plt.show()
 
     confidence = []
@@ -96,7 +96,7 @@ for i in range(0, 4):
     upper = min(1.0, np.percentile(f_scores, p))
     print('%.1f confidence interval: %.1f and %.1f' %
           (alpha*100, lower*100, upper*100))
-    with open('B_Stats'+str(i)+'.txt', 'w') as f:
+    with open('J_Stats_Base'+str(i)+'.txt', 'w') as f:
         f.write('F-Score Mean: %f \n' % (np.array(f_scores).mean()))
         f.write('P-Score Mean: %f \n' % (np.array(p_scores).mean()))
         f.write('R-Score Mean: %f \n' % (np.array(r_scores).mean()))

@@ -1,3 +1,5 @@
 .vscode/
 *.bin
 *.pkl
+*.vec
+WordEmbedding/glove.840B.300d.w2vformat.txt

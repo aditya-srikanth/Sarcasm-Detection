@@ -7,8 +7,9 @@ import pandas as pd
 import pickle
 import re
 from scipy.sparse import csr_matrix
+from scipy import io
 
-f = open('dataset', 'r', encoding="utf-8-sig")
+f = open('../dataset', 'r', encoding="utf-8-sig")
 qid = 0
 dict = {}
 word_count = {}
@@ -68,7 +69,7 @@ for line in f:
             else:
                 word_count[word] += word_count[word]
 
-f = open('dataset', 'r', encoding='utf-8-sig')
+f = open('../dataset', 'r', encoding='utf-8-sig')
 f_o1 = open('out', 'w')
 f_o1.write('# Vocabulary size:'+str(index)+'\n')
 # print(len(dict))
@@ -127,4 +128,5 @@ for line in f:
 data = csr_matrix(data)
 with open("lieb.pkl", 'wb') as f:
     pickle.dump(data, f)
+io.mmwrite('lieb.mtx', data)
 # print(dict)

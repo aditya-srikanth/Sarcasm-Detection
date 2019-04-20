@@ -24,7 +24,7 @@ labels = np.array(list(df['label']))
 # bf_5 = pd.concat([bf, w5.iloc[:, 0:4]], axis=1, ignore_index=True)
 
 # # Joshi Paper (4th) Paper
-jc = pd.read_pickle('./Context_Incongruity/jc_features_df.pkl')
+# jc = pd.read_pickle('./Context_Incongruity/jc_features_df.pkl')
 
 # jc_1 = pd.concat([jc, w1.iloc[:, 0:4]], axis=1, ignore_index=True)
 # jc_3 = pd.concat([jc, w3.iloc[:, 0:4]], axis=1, ignore_index=True)
@@ -57,8 +57,8 @@ def classify(data, labels, model):
 
 scores = []
 
-temp = classify(jc, labels, svmmodel)
-scores.append(temp)
+# temp = classify(jc, labels, svmmodel)
+# scores.append(temp)
 
 # temp = classify(bf_1, labels, svmmodel)
 # scores.append(temp)

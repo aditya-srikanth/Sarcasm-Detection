@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np
+from scipy import sparse
 
 from sklearn import svm
 from sklearn.model_selection import KFold
@@ -23,7 +24,7 @@ joshi_path = './Context_Incongruity/jc_features_df.pkl'
 base_df_pkl_path = joshi_path
 
 # Output Args
-stats_path = "./stats/J_FASTTEXT"
+stats_path = "./stats/J_GLOVE"
 
 
 '''Ready Features'''
@@ -33,9 +34,9 @@ labels = np.array(list(df['label']))
 
 bf = pd.read_pickle(base_df_pkl_path)
 
-w1 = pd.read_pickle('./WordEmbedding/fwembed_1.pkl')
-w3 = pd.read_pickle('./WordEmbedding/fwembed_3.pkl')
-w5 = pd.read_pickle('./WordEmbedding/fwembed_5.pkl')
+w1 = pd.read_pickle('./WordEmbedding/glove_wembed_1.pkl')
+w3 = pd.read_pickle('./WordEmbedding/glove_wembed_3.pkl')
+w5 = pd.read_pickle('./WordEmbedding/glove_wembed_5.pkl')
 
 # Append WordEmbedding Feature
 bf_1 = pd.concat([bf, w1.iloc[:, 0:4]], axis=1, ignore_index=True)
@@ -57,6 +58,7 @@ def classify(data, labels, model):
         print(i)
         X_train, X_test, y_train, y_test = np.array(data.iloc[train]), np.array(
             data.iloc[test]), labels[train], labels[test]
+        X_train = sparse.csr_matrix(X_train)
         model.fit(X_train, y_train.ravel())
         y_pred = model.predict(X_test)
         metric = precision_recall_fscore_support(y_test, y_pred)

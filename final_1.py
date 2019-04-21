@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
-from scipy import sparse
+from scipy import io, sparse
+import pickle
 
 from sklearn import svm
 from sklearn.model_selection import KFold
@@ -9,6 +10,8 @@ from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.feature_selection import chi2
 
 import matplotlib.pyplot as plt
+# Lieb Paper (1st)
+lieb_path = './Lieb/lieb.pkl'
 
 # Gonzalez Paper (2nd)
 gonz_path = './Gonzalez/gonz_df.pkl'
@@ -21,27 +24,34 @@ joshi_path = './Context_Incongruity/jc_features_df.pkl'
 
 ''' Starts Here '''
 # Input Args
-base_df_pkl_path = bush_path
+# base_df_pkl_path = gonz_path
 
 # Output Args
-stats_path = "./stats/B_GLOVE_"
+stats_path = "./stats/L_W2V_"
 
 
 '''Ready Features'''
 # Dataset
-df = pd.read_csv('./final_data.tsv', sep='\t')
+df = pd.read_csv('final_data.tsv', sep='\t')
 labels = np.array(list(df['label']))
 
-bf = pd.read_pickle(base_df_pkl_path)
+bf = io.mmread('./Lieb/lieb.mtx')
+# bf = pd.DataFrame(bf.toarray())
+w1 = pd.read_pickle('./WordEmbedding/wembed_1.pkl')
+w1 = w1.iloc[:, 0:4]
+w3 = pd.read_pickle('./WordEmbedding/wembed_3.pkl')
+w3 = w3.iloc[:, 0:4]
+w5 = pd.read_pickle('./WordEmbedding/wembed_5.pkl')
+w5 = w5.iloc[:, 0:4]
 
-w1 = pd.read_pickle('./WordEmbedding/glove_wembed_1.pkl')
-w3 = pd.read_pickle('./WordEmbedding/glove_wembed_3.pkl')
-w5 = pd.read_pickle('./WordEmbedding/glove_wembed_5.pkl')
+w1 = sparse.csr_matrix(w1.values)
+w3 = sparse.csr_matrix(w3.values)
+w5 = sparse.csr_matrix(w5.values)
 
 # Append WordEmbedding Feature
-bf_1 = pd.concat([bf, w1.iloc[:, 0:4]], axis=1, ignore_index=True)
-bf_3 = pd.concat([bf, w3.iloc[:, 0:4]], axis=1, ignore_index=True)
-bf_5 = pd.concat([bf, w5.iloc[:, 0:4]], axis=1, ignore_index=True)
+bf_1 = sparse.hstack((bf, w1))
+bf_3 = sparse.hstack((bf, w3))
+bf_5 = sparse.hstack((bf, w5))
 
 # Training
 # Initialize model
@@ -56,9 +66,10 @@ def classify(data, labels, model):
     i = 0
     for train, test in kfold.split(data):
         print(i)
-        X_train, X_test, y_train, y_test = np.array(data.iloc[train]), np.array(
-            data.iloc[test]), labels[train], labels[test]
-        X_train = sparse.csr_matrix(X_train)
+#         dd = SparseRowIndexer(data)
+        data = data.tocsr()
+        X_train, X_test, y_train, y_test = data[train,
+                                                :], data[test, :], labels[train], labels[test]
         model.fit(X_train, y_train.ravel())
         y_pred = model.predict(X_test)
         metric = precision_recall_fscore_support(y_test, y_pred)
@@ -68,6 +79,8 @@ def classify(data, labels, model):
         i += 1
     return scores
 
+
+print(bf.shape)
 
 scores = []
 

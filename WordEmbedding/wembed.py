@@ -148,4 +148,4 @@ df = pd.read_csv('../final_data.tsv', sep='\t')
 for i in [1, 3, 5]:
     feat_df = wembed_features(df, glove_model, tokenizer, window=i)
     print('Extracted Features')
-    feat_df.to_pickle('fwembed_'+str(i)+'.pkl')
+    feat_df.to_pickle('glove_wembed_'+str(i)+'.pkl')

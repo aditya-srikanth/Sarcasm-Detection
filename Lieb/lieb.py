@@ -9,7 +9,8 @@ import re
 from scipy.sparse import csr_matrix, lil_matrix
 from scipy import io
 
-dataset_path = '../new_data_unbalanced.tsv'
+dataset_path = '../new_data_balanced.tsv'
+out_path = 'lieb_balanced_csr.mtx'
 
 f = open(dataset_path, 'r', encoding="utf-8-sig")
 qid = 0
@@ -133,5 +134,5 @@ data = csr_matrix(data)
 # with open("lieb.pkl", 'wb') as f:
 #     pickle.dump(data, f)
 print(data.shape)
-io.mmwrite('lieb_unbalanced_csr.mtx', data)
+io.mmwrite(out_path, data)
 # print(dict)

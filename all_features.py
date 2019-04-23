@@ -28,7 +28,6 @@ joshi_path = './Context_Incongruity/jc_features_df.pkl'
 # base_df_pkl_path = gonz_path
 
 # Output Args
-stats_path = "./stats/FULL_BASE"
 
 
 '''Ready Features'''
@@ -59,17 +58,22 @@ stats_path = "./stats/FULL_BASE"
 # print(full.shape)
 
 '''Sparse Features'''
-lieb = io.mmread('./Lieb/lieb_unbalanced_csr.mtx')
-gonz = io.mmread('./Gonzalez/gonz_unbalanced_csr.mtx')
+lieb = io.mmread('./lieb/lieb_unbalanced_csr.mtx')
+gonz = io.mmread('./gonzalez/gonz_unbalanced_csr.mtx')
 gonz = gonz.tocsc()
-bush = io.mmread('./Bush/bush_unbalanced_csr.mtx')
+bush = io.mmread('./bush/bush_unbalanced_csr.mtx')
 bush = bush.tocsc()
-josh = io.mmread('./Context_Incongruity/jco_unbalanced_csr.mtx')
+josh = io.mmread('./joshi/jc_unbalanced_csr.mtx')
 josh = josh.tocsc()
 
 labels = np.loadtxt('./new_label_unbalanced.txt', dtype=np.int32)
 
+stats_path = "./new_stats/ALL_BASE_UNBAL"
+
+# For Unbalanced Dataset
 unigram_end = 30467
+# For Balanced Dataser
+# unigram_end = 37149
 
 all_feat = sparse.hstack(
     (lieb, gonz[:, unigram_end:], bush[:, unigram_end:], josh[:, unigram_end:]))

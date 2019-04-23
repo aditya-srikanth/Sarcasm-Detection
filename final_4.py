@@ -48,9 +48,9 @@ base_df_pkl_path = joshi_path
 
 # Sparse Matrices
 # Sparse Load
-bf = io.mmread('./Context_Incongruity/jco_unbalanced_csr.mtx')
+bf = io.mmread('./joshi/jc_unbalanced_csr.mtx')
 labels = np.loadtxt('./new_label_unbalanced.txt', dtype=np.int32)
-stats_path = "./new_stats/JO_BASE_UNBAL"
+stats_path = "./new_stats/J_BASE_UNBAL"
 
 print(bf.shape)
 print(labels.sum())

@@ -7,7 +7,7 @@ from scipy.sparse import csr_matrix, lil_matrix
 from scipy import io
 
 dataset_path = '../new_data_unbalanced.tsv'
-out_path = 'jco_unbalanced_csr.mtx'
+out_path = 'jc_unbalanced_csr.mtx'
 
 # Sentiment wordlist load
 f = open('sentiwordlist', 'r')

@@ -45,11 +45,11 @@ lieb_path = './Lieb/lieb.pkl'
 # bf_5 = sparse.hstack((bf, w5))
 
 '''Sparse CSR Matrix'''
-bf = io.mmread('./lieb/lieb_unbalanced_csr.mtx')
-labels = np.loadtxt('./new_label_unbalanced.txt', dtype=np.int32)
+bf = io.mmread('./lieb/lieb_balanced_csr.mtx')
+labels = np.loadtxt('./new_label_balanced.txt', dtype=np.int32)
 
 # Output Args
-stats_path = "./new_stats/L_BASE_UNBAL"
+stats_path = "./new_stats/L_BASE_BAL"
 
 print(bf.shape)
 print(labels.sum())

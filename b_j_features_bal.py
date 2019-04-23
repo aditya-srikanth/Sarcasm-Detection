@@ -1,14 +1,18 @@
 import pandas as pd
 import numpy as np
-from scipy import sparse, io
+from scipy import io, sparse
+import pickle
 
 from sklearn import svm
 from sklearn.model_selection import KFold
 from sklearn.metrics import precision_recall_fscore_support
 from sklearn.feature_extraction.text import CountVectorizer
-from sklearn.feature_selection import chi2
+from sklearn.feature_selection import chi2, RFE, f_regression
+from sklearn.preprocessing import MinMaxScaler
 
 import matplotlib.pyplot as plt
+# Lieb Paper (1st)
+lieb_path = './Lieb/lieb.pkl'
 
 # Gonzalez Paper (2nd)
 gonz_path = './Gonzalez/gonz_df.pkl'
@@ -21,45 +25,60 @@ joshi_path = './Context_Incongruity/jc_features_df.pkl'
 
 ''' Starts Here '''
 # Input Args
-base_df_pkl_path = bush_path
+# base_df_pkl_path = gonz_path
 
 # Output Args
-stats_path = "./stats/B_GLOVE_"
 
 
-# '''Ready Features'''
+'''Ready Features'''
 # # Dataset
-# df = pd.read_csv('./final_data.tsv', sep='\t')
+# df = pd.read_csv('final_data.tsv', sep='\t')
 # labels = np.array(list(df['label']))
 
-# bf = pd.read_pickle(base_df_pkl_path)
+# # Paper Features
+# # lieb = io.mmread('./Lieb/lieb.mtx')
 
-# w1 = pd.read_pickle('./WordEmbedding/glove_wembed_1.pkl')
-# w3 = pd.read_pickle('./WordEmbedding/glove_wembed_3.pkl')
-# w5 = pd.read_pickle('./WordEmbedding/glove_wembed_5.pkl')
+# gonz = pd.read_pickle(gonz_path)
+# print(gonz.shape)
+# # gonz = gonz.iloc[:, -10:]
+# gonz = sparse.csr_matrix(gonz.values)
 
-# # Append WordEmbedding Feature
-# bf_1 = pd.concat([bf, w1.iloc[:, 0:4]], axis=1, ignore_index=True)
-# bf_3 = pd.concat([bf, w3.iloc[:, 0:4]], axis=1, ignore_index=True)
-# bf_5 = pd.concat([bf, w5.iloc[:, 0:4]], axis=1, ignore_index=True)
+# bush = pd.read_pickle(bush_path)
+# # bush = bush.iloc[:, -10:]
+# bush = sparse.csr_matrix(bush.values)
 
-'''Sparse CSR Matrix'''
-bf = io.mmread('./bush/bush_balanced_csr.mtx')
+# josh = pd.read_pickle(joshi_path)
+# # josh = josh.iloc[:, -10:]
+# josh = sparse.csr_matrix(josh.values)
+
+# # print(lieb.shape, gonz.shape, bush.shape, josh.shape)
+
+# # Append all Features
+# full = sparse.hstack((gonz, bush, josh))
+# print(full.shape)
+
+'''Sparse Features'''
+bush = io.mmread('./bush/bush_balanced_csr.mtx')
+bush = bush.tocsc()
+josh = io.mmread('./joshi/jc_balanced_csr.mtx')
+josh = josh.tocsc()
+
 labels = np.loadtxt('./new_label_balanced.txt', dtype=np.int32)
 
-print(bf.shape)
-stats_path = "./new_stats/B_BASE_BAL"
+stats_path = "./new_stats/B_J_BASE_BAL"
 
-# # Stats path
-# stats_path = './new_stats/B_BASE_UNBAL'
+# For Unbalanced Dataset
+# unigram_end = 30467
+# For Balanced Dataser
+unigram_end = 37149
 
-# print(bf.shape)
-# print(labels.sum())
+all_feat = sparse.hstack(
+    (bush, josh[:, unigram_end:]))
 
 # Training
 # Initialize model
 svmmodel = svm.SVC(gamma='scale', class_weight='balanced',
-                   C=20.0, cache_size=1000)
+                   C=20.0, cache_size=4000)
 
 
 def classify(data, labels, model):
@@ -69,9 +88,10 @@ def classify(data, labels, model):
     i = 0
     for train, test in kfold.split(data):
         print(i)
+#         dd = SparseRowIndexer(data)
         data = data.tocsr()
-        X_train, X_test, y_train, y_test = data[train], data[test], labels[train], labels[test]
-        X_train = sparse.csr_matrix(X_train)
+        X_train, X_test, y_train, y_test = data[train,
+                                                :], data[test, :], labels[train], labels[test]
         model.fit(X_train, y_train.ravel())
         y_pred = model.predict(X_test)
         metric = precision_recall_fscore_support(y_test, y_pred)
@@ -82,21 +102,13 @@ def classify(data, labels, model):
     return scores
 
 
-scores = []
+# TRAINING
 
-temp = classify(bf, labels, svmmodel)
+scores = []
+temp = classify(all_feat, labels, svmmodel)
 scores.append(temp)
 
-# # temp = classify(bf_1, labels, svmmodel)
-# # scores.append(temp)
-
-# # temp = classify(bf_3, labels, svmmodel)
-# # scores.append(temp)
-
-# # temp = classify(bf_5, labels, svmmodel)
-# # scores.append(temp)
-
-for i in range(0, len(scores)):
+for i in range(0, 1):
     plt.title('Performance')
     plt.plot([x for x in range(len(scores[i]))], [score[0][1]
                                                   for score in scores[i]])

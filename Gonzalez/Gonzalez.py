@@ -4,7 +4,7 @@ import pandas as pd
 import numpy as np 
 from scipy import sparse, io
 
-dataset_path = '../new_data_unbalanced.tsv'
+dataset_path = '../new_data_balanced.tsv'
 out_path = 'gonz_unbalanced_csr.mtx'
 # LIWC features
 

@@ -44,7 +44,7 @@ stats_path = "./stats/B_GLOVE_"
 # bf_5 = pd.concat([bf, w5.iloc[:, 0:4]], axis=1, ignore_index=True)
 
 '''Sparse CSR Matrix'''
-bf = io.mmread('./Bush/bush_unbalanced_csr.mtx')
+bf = io.mmread('./Bush/bush_balanced_csr.mtx')
 bf = bf.tocsc()
 print(bf.shape)
 # labels = np.loadtxt('./new_label_unbalanced.txt', dtype=np.int32)

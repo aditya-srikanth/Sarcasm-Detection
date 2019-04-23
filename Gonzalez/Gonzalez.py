@@ -5,7 +5,7 @@ import numpy as np
 from scipy import sparse, io
 
 dataset_path = '../new_data_balanced.tsv'
-out_path = 'gonz_balanced_csr.mtx'
+out_path = 'gonz_unbalanced_csr.mtx'
 # LIWC features
 
 featuremap_dict = {'16':'LP','12':'LP','19':'LP','141':'LP','142':'LP','143':'LP','146':'LP','22':'PP','125':'PP',

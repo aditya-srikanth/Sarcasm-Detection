@@ -2,10 +2,12 @@ import sys
 import re
 import pandas as pd
 import numpy as np
+from scipy import sparse, io
 
 sentiment_word_path = 'sentiwordlist'
 interjection_path = 'interj_words'
 implicit_path = 'implicit_phrases'
+dataset_path = '../new_data_balanced.tsv'
 
 
 class JoshiCongruity:
@@ -164,7 +166,9 @@ class JoshiCongruity:
         word_count = {}
         rev_dict = {}
         index = 1
+        line_count = 0
         for line in f:
+            line_count += 1
             contents = line.split('\t')
             if len(contents) == 2 and 'Scene' not in line:
                 dialogue = contents[0].lower()
@@ -172,6 +176,8 @@ class JoshiCongruity:
                 if len(dialogue) == 0:
                     continue
                 words = re.findall(r"[\w]+|[.:,!?;]", dialogue)
+                if len(words) == 0:
+                    continue
                 first_word = words[0]
 
                 for word in words:
@@ -197,7 +203,7 @@ class JoshiCongruity:
         f_o1 = open(out_path, 'w', encoding='utf-8-sig')
 
         self.i = 0
-        self.mat = np.zeros((3630, i_base+5), dtype='int')
+        self.mat = np.zeros((line_count, i_base+5), dtype='int')
         for line in f:
 
             self.row = np.zeros(i_base+5)
@@ -208,12 +214,15 @@ class JoshiCongruity:
                 qid += 1
 
             if len(contents) >= 2:
+                print(self.i)
                 word_ids = [1]
                 dialogue = contents[0].lower()
 
                 if len(dialogue) == 0:
                     continue
                 words = re.findall(r"[\w']+|[.,!?;]", dialogue)
+                if len(words) == 0:
+                    words = ['!DEFAULT!']
 
                 first_word = words[0]
                 speaker = first_word+':'
@@ -237,6 +246,7 @@ class JoshiCongruity:
 
                 word_ids = list(set(word_ids))
                 word_ids.sort()
+                # print(word_ids[0])
                 s_line = label+' '
                 for id in word_ids:
                     s_line += str(id)+':1 '
@@ -254,10 +264,10 @@ class JoshiCongruity:
 
 
 cong = JoshiCongruity()
-cong.extractFeatures('../dataset', 'jc_features')
+cong.extractFeatures(dataset_path, 'jc_features')
 
 df = cong.feat_df
-df = df.loc[:, 1:]
-df = df.loc[0:3628, :]
-df.to_pickle('jc_features_df.pkl')
+sparse_df = sparse.csr_matrix(np.array(df))
+io.mmwrite('jc_balanced_csr.mtx', sparse_df)
+# df.to_pickle('jc_features_df_Balanced.pkl')
 # cong.feat_df.to_csv('df.csv')

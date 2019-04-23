@@ -2,7 +2,10 @@ import sys
 import re
 import pandas as pd
 import numpy as np 
+from scipy import sparse, io
 
+dataset_path = '../new_data_balanced.tsv'
+out_path = 'gonz_balanced_csr.mtx'
 # LIWC features
 
 featuremap_dict = {'16':'LP','12':'LP','19':'LP','141':'LP','142':'LP','143':'LP','146':'LP','22':'PP','125':'PP',
@@ -71,7 +74,7 @@ def getInterjection(input,i_interj):
 	return output
 
 
-f = open('../dataset','r', encoding='utf-8-sig')
+f = open(dataset_path,'r', encoding='utf-8-sig')
 qid = 0
 dict = {}
 word_count = {}
@@ -136,16 +139,18 @@ i_interj = index+4
 i_liwcbase = index+5
 
 final_features = i_liwcbase + 2
-row = np.array((1, 15027))
-data = np.zeros((num_examples, 15027))
+row = np.zeros((1, final_features+1))
+data = np.zeros((1, final_features+1))
+data = sparse.csr_matrix(data)
 line_index = 0
 print(final_features)
 
 
 print(str(i_excl)+' '+str(i_quest)+' '+str(i_dotdot)+' '+str(i_interj)+' '+str(i_liwcbase))
-f = open('../dataset','r', encoding='utf-8-sig')
+f = open(dataset_path,'r', encoding='utf-8-sig')
 f_o1 = open('out.txt','w')
 f_o1.write('# Vocabulary size:'+str(index)+'\n')
+prog = 0
 for line in f:
 	s_line = ''
 	contents = line.split('\t')
@@ -156,7 +161,9 @@ for line in f:
 		
 	
 	if len(contents) >=2:
-		row = np.zeros(15027)
+		print(prog)
+		prog += 1
+		row = np.zeros(final_features+1)
 		#print(contents)
 		word_ids = [1]
 		dialogue = contents[0].lower()
@@ -193,13 +200,14 @@ for line in f:
 		for id in word_ids:
 			s_line += str(id)+':1 '
 			row[id] = 1
-		data[line_index] = row
+		data = sparse.vstack((data, sparse.csr_matrix(row)))
+		# data[line_index] = row
 		line_index += 1
 		s_line += s_punct+' '+s_interj+' '+s_liwc +' '
 		# s_line += '# '+line
 		s_line = s_line.strip()
 		f_o1.write(s_line+'\n')
-		
-df = pd.DataFrame(data[:, 1:])
-print(df.shape)
-df.to_pickle('gonz_df.pkl')
+print(data.shape)
+data = data[1:, :]
+print(data.shape)
+io.mmwrite(out_path, data)

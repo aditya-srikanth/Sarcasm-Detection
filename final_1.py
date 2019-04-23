@@ -13,45 +13,46 @@ import matplotlib.pyplot as plt
 # Lieb Paper (1st)
 lieb_path = './Lieb/lieb.pkl'
 
-# Gonzalez Paper (2nd)
-gonz_path = './Gonzalez/gonz_df.pkl'
-
-# # Bush Paper (3rd)
-bush_path = './Bush/buschmeier.pkl'
-
-# # Joshi Paper (4th) Paper
-joshi_path = './Context_Incongruity/jc_features_df.pkl'
-
 ''' Starts Here '''
 # Input Args
 # base_df_pkl_path = gonz_path
 
-# Output Args
-stats_path = "./stats/L_W2V_"
+# # Output Args
+# stats_path = "./stats/L_W2V_"
 
 
 '''Ready Features'''
-# Dataset
-df = pd.read_csv('final_data.tsv', sep='\t')
-labels = np.array(list(df['label']))
+# # Dataset
+# df = pd.read_csv('final_data.tsv', sep='\t')
+# labels = np.array(list(df['label']))
 
-bf = io.mmread('./Lieb/lieb.mtx')
-# bf = pd.DataFrame(bf.toarray())
-w1 = pd.read_pickle('./WordEmbedding/wembed_1.pkl')
-w1 = w1.iloc[:, 0:4]
-w3 = pd.read_pickle('./WordEmbedding/wembed_3.pkl')
-w3 = w3.iloc[:, 0:4]
-w5 = pd.read_pickle('./WordEmbedding/wembed_5.pkl')
-w5 = w5.iloc[:, 0:4]
+# bf = io.mmread('./Lieb/lieb.mtx')
+# # bf = pd.DataFrame(bf.toarray())
+# w1 = pd.read_pickle('./WordEmbedding/wembed_1.pkl')
+# w1 = w1.iloc[:, 0:4]
+# w3 = pd.read_pickle('./WordEmbedding/wembed_3.pkl')
+# w3 = w3.iloc[:, 0:4]
+# w5 = pd.read_pickle('./WordEmbedding/wembed_5.pkl')
+# w5 = w5.iloc[:, 0:4]
 
-w1 = sparse.csr_matrix(w1.values)
-w3 = sparse.csr_matrix(w3.values)
-w5 = sparse.csr_matrix(w5.values)
+# w1 = sparse.csr_matrix(w1.values)
+# w3 = sparse.csr_matrix(w3.values)
+# w5 = sparse.csr_matrix(w5.values)
 
-# Append WordEmbedding Feature
-bf_1 = sparse.hstack((bf, w1))
-bf_3 = sparse.hstack((bf, w3))
-bf_5 = sparse.hstack((bf, w5))
+# # Append WordEmbedding Feature
+# bf_1 = sparse.hstack((bf, w1))
+# bf_3 = sparse.hstack((bf, w3))
+# bf_5 = sparse.hstack((bf, w5))
+
+'''Sparse CSR Matrix'''
+bf = io.mmread('./Lieb/lieb_newData_balanced.mtx')
+labels = np.loadtxt('./new_label_balanced.txt', dtype=np.int32)
+
+# Output Args
+stats_path = "./stats/L_BASE_BAL"
+
+print(bf.shape)
+print(labels.sum())
 
 # Training
 # Initialize model
@@ -87,16 +88,16 @@ scores = []
 temp = classify(bf, labels, svmmodel)
 scores.append(temp)
 
-temp = classify(bf_1, labels, svmmodel)
-scores.append(temp)
+# temp = classify(bf_1, labels, svmmodel)
+# scores.append(temp)
 
-temp = classify(bf_3, labels, svmmodel)
-scores.append(temp)
+# temp = classify(bf_3, labels, svmmodel)
+# scores.append(temp)
 
-temp = classify(bf_5, labels, svmmodel)
-scores.append(temp)
+# temp = classify(bf_5, labels, svmmodel)
+# scores.append(temp)
 
-for i in range(0, 4):
+for i in range(0, len(scores)):
     plt.title('Performance')
     plt.plot([x for x in range(len(scores[i]))], [score[0][1]
                                                   for score in scores[i]])

@@ -6,10 +6,12 @@ import numpy as np
 import pandas as pd
 import pickle
 import re
-from scipy.sparse import csr_matrix
+from scipy.sparse import csr_matrix, lil_matrix
 from scipy import io
 
-f = open('../dataset', 'r', encoding="utf-8-sig")
+dataset_path = '../new_data_balanced.tsv'
+
+f = open(dataset_path, 'r', encoding="utf-8-sig")
 qid = 0
 dict = {}
 word_count = {}
@@ -51,7 +53,11 @@ for line in f:
             continue
 
         words = re.findall(r"[\w']+|[.:,!?;]", dialogue)
-        first_word = words[0]
+
+        try:
+            first_word = words[0]
+        except Exception as e:
+            print(dialogue)
 
         stitched = ''
         for word in words:
@@ -69,14 +75,16 @@ for line in f:
             else:
                 word_count[word] += word_count[word]
 
-f = open('../dataset', 'r', encoding='utf-8-sig')
+f = open(dataset_path, 'r', encoding='utf-8-sig')
 f_o1 = open('out', 'w')
 f_o1.write('# Vocabulary size:'+str(index)+'\n')
 # print(len(dict))
 # print(dict)
-data = np.zeros((line_count, len(dict)))
+print(len(dict))
+data = lil_matrix((line_count, len(dict)))
 line_count = 0
 for line in f:
+    print(line_count)
     s_line = ''
     contents = line.split('\t')
     pos_score = 0
@@ -126,7 +134,7 @@ for line in f:
 
 # data = pd.DataFrame(data)
 data = csr_matrix(data)
-with open("lieb.pkl", 'wb') as f:
-    pickle.dump(data, f)
-io.mmwrite('lieb.mtx', data)
+# with open("lieb.pkl", 'wb') as f:
+#     pickle.dump(data, f)
+io.mmwrite('lieb_newData_balanced.mtx', data)
 # print(dict)

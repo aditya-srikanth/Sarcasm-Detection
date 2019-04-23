@@ -2,7 +2,11 @@ import pickle
 import pandas as pd
 import numpy as np
 import re
+from scipy.sparse import csr_matrix, lil_matrix
+from scipy import io
 
+dataset_path = '../new_data_balanced.tsv'
+out_path = 'bush_balanced_csr.mtx'
 
 # Sentiment wordlist load
 f = open('sentiwordlist', 'r')
@@ -56,7 +60,7 @@ def getHyperbole(input, i_hyp):
             pos_score = 0
             neg_score = 0
         global final_features
-        row = np.zeros((1, final_features))
+        row = lil_matrix((1, final_features))
         if pos_score == 3:
             row[i_hyp] = pos_score
             return (i_hyp, pos_score)
@@ -169,7 +173,7 @@ def getActions(input):
     return output.strip()
 
 
-f = open('../dataset', 'r', encoding='utf-8-sig')
+f = open(dataset_path, 'r', encoding='utf-8-sig')
 qid = 0
 dict = {}
 word_count = {}
@@ -212,15 +216,16 @@ i_interj = index+8
 
 
 final_features = i_interj
-row = np.array((1, final_features))
-data = np.zeros((num_examples, final_features))
+row = csr_matrix((1, final_features))
+data = lil_matrix((num_examples, final_features))
 line_index = 0
 
 print(str(i_excl)+' '+str(i_quest)+' '+str(i_dotdot)+' '+str(i_interj))
-f = open('./../dataset', 'r', encoding='utf-8-sig')
+f = open(dataset_path, 'r', encoding='utf-8-sig')
 f_o1 = open('output.txt', 'w')
 f_o1.write('# Vocabulary size:'+str(index)+'\n')
 for line in f:
+    print(line_index)
     s_line = ''
     contents = line.split('\t')
     pos_score = 0
@@ -298,11 +303,13 @@ for line in f:
         s_line = s_line.strip()
         f_o1.write(str(line)+'\n')
         # print("line break")
-print(data[data > 0].size)
+# print(data[data > 0].size)
 
-data = pd.DataFrame(data)
-with open('buschmeier.pkl', 'wb') as f:
-    pickle.dump(data, f)
+# data = pd.DataFrame(data)
+# with open('buschmeier.pkl', 'wb') as f:
+#     pickle.dump(data, f)
+data = data.tocsr()
+io.mmwrite(out_path, data)
 
 # for test
 

@@ -1,6 +1,6 @@
 import pandas as pd
 import numpy as np
-from scipy import sparse
+from scipy import sparse, io
 
 from sklearn import svm
 from sklearn.model_selection import KFold
@@ -24,24 +24,39 @@ joshi_path = './Context_Incongruity/jc_features_df.pkl'
 base_df_pkl_path = gonz_path
 
 # Output Args
-stats_path = "./stats/G_GLOVE_"
+# stats_path = "./stats/G_FASTTEXT"
 
 
 '''Ready Features'''
-# Dataset
-df = pd.read_csv('./final_data.tsv', sep='\t')
-labels = np.array(list(df['label']))
+# # Dataset
+# df = pd.read_csv('./final_data.tsv', sep='\t')
+# labels = np.array(list(df['label']))
 
-bf = pd.read_pickle(base_df_pkl_path)
+# bf = pd.read_pickle(base_df_pkl_path)
 
-w1 = pd.read_pickle('./WordEmbedding/glove_wembed_1.pkl')
-w3 = pd.read_pickle('./WordEmbedding/glove_wembed_3.pkl')
-w5 = pd.read_pickle('./WordEmbedding/glove_wembed_5.pkl')
+# w1 = pd.read_pickle('./WordEmbedding/c2v_fwembed_1.pkl')
+# w3 = pd.read_pickle('./WordEmbedding/c2v_fwembed_3.pkl')
+# w5 = pd.read_pickle('./WordEmbedding/c2v_fwembed_5.pkl')
 
-# Append WordEmbedding Feature
-bf_1 = pd.concat([bf, w1.iloc[:, 0:4]], axis=1, ignore_index=True)
-bf_3 = pd.concat([bf, w3.iloc[:, 0:4]], axis=1, ignore_index=True)
-bf_5 = pd.concat([bf, w5.iloc[:, 0:4]], axis=1, ignore_index=True)
+# # w1 = pd.read_pickle('./WordEmbedding/fwembed_1.pkl')
+# # w3 = pd.read_pickle('./WordEmbedding/fwembed_3.pkl')
+# # w5 = pd.read_pickle('./WordEmbedding/fwembed_5.pkl')
+
+# # Append WordEmbedding Feature
+# bf_1 = pd.concat([bf, w1.iloc[:, 0:4]], axis=1, ignore_index=True)
+# bf_3 = pd.concat([bf, w3.iloc[:, 0:4]], axis=1, ignore_index=True)
+# bf_5 = pd.concat([bf, w5.iloc[:, 0:4]], axis=1, ignore_index=True)
+
+'''Sparse CSR Matrix'''
+bf = io.mmread('./Gonzalez/gonz_balanced_csr.mtx')
+labels = np.loadtxt('./new_label_balanced.txt', dtype=np.int32)
+
+stats_path = "./new_stats/G_BASE_BAL"
+
+print(bf.shape)
+if(bf.shape[0] == 54001):
+    bf = bf[1:, :]
+print(labels.sum())
 
 # Training
 # Initialize model
@@ -56,9 +71,8 @@ def classify(data, labels, model):
     i = 0
     for train, test in kfold.split(data):
         print(i)
-        X_train, X_test, y_train, y_test = np.array(data.iloc[train]), np.array(
-            data.iloc[test]), labels[train], labels[test]
-        X_train = sparse.csr_matrix(X_train)
+        data = data.tocsr()
+        X_train, X_test, y_train, y_test = data[train], data[test], labels[train], labels[test]
         model.fit(X_train, y_train.ravel())
         y_pred = model.predict(X_test)
         metric = precision_recall_fscore_support(y_test, y_pred)
@@ -74,16 +88,16 @@ scores = []
 temp = classify(bf, labels, svmmodel)
 scores.append(temp)
 
-temp = classify(bf_1, labels, svmmodel)
-scores.append(temp)
+# temp = classify(bf_1, labels, svmmodel)
+# scores.append(temp)
 
-temp = classify(bf_3, labels, svmmodel)
-scores.append(temp)
+# temp = classify(bf_3, labels, svmmodel)
+# scores.append(temp)
 
-temp = classify(bf_5, labels, svmmodel)
-scores.append(temp)
+# temp = classify(bf_5, labels, svmmodel)
+# scores.append(temp)
 
-for i in range(0, 4):
+for i in range(0, len(scores)):
     plt.title('Performance')
     plt.plot([x for x in range(len(scores[i]))], [score[0][1]
                                                   for score in scores[i]])

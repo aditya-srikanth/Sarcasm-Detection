@@ -48,10 +48,10 @@ base_df_pkl_path = gonz_path
 # bf_5 = pd.concat([bf, w5.iloc[:, 0:4]], axis=1, ignore_index=True)
 
 '''Sparse CSR Matrix'''
-bf = io.mmread('./Gonzalez/gonz_balanced_csr.mtx')
-labels = np.loadtxt('./new_label_balanced.txt', dtype=np.int32)
+bf = io.mmread('./Gonzalez/gonz_unbalanced_csr.mtx')
+labels = np.loadtxt('./new_label_unbalanced.txt', dtype=np.int32)
 
-stats_path = "./new_stats/G_BASE_BAL"
+stats_path = "./new_stats/G_BASE_UNBAL"
 
 print(bf.shape)
 if(bf.shape[0] == 54001):

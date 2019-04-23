@@ -24,7 +24,6 @@ joshi_path = './Context_Incongruity/jc_features_df_Balanced.pkl'
 base_df_pkl_path = joshi_path
 
 # Output Args
-stats_path = "./new_stats/J_BASE_BAL"
 
 
 '''Ready Features'''
@@ -49,8 +48,9 @@ stats_path = "./new_stats/J_BASE_BAL"
 
 # Sparse Matrices
 # Sparse Load
-bf = io.mmread('./Context_Incongruity/jc_balanced_csr.mtx')
-labels = np.loadtxt('./new_label_balanced.txt', dtype=np.int32)
+bf = io.mmread('./Context_Incongruity/jco_unbalanced_csr.mtx')
+labels = np.loadtxt('./new_label_unbalanced.txt', dtype=np.int32)
+stats_path = "./new_stats/JO_BASE_UNBAL"
 
 print(bf.shape)
 print(labels.sum())

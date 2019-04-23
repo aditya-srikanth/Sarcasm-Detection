@@ -5,8 +5,8 @@ import re
 from scipy.sparse import csr_matrix, lil_matrix
 from scipy import io
 
-dataset_path = '../new_data_balanced.tsv'
-out_path = 'bush_balanced_csr.mtx'
+dataset_path = '../new_data_unbalanced.tsv'
+out_path = 'bush_unbalanced_csr.mtx'
 
 # Sentiment wordlist load
 f = open('sentiwordlist', 'r')
@@ -214,7 +214,7 @@ i_quest = index+6
 i_dotdot = index+7
 i_interj = index+8
 
-
+print(index)
 final_features = i_interj
 row = csr_matrix((1, final_features))
 data = lil_matrix((num_examples, final_features))
@@ -309,6 +309,7 @@ for line in f:
 # with open('buschmeier.pkl', 'wb') as f:
 #     pickle.dump(data, f)
 data = data.tocsr()
+print(data.shape)
 io.mmwrite(out_path, data)
 
 # for test

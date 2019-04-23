@@ -32,31 +32,47 @@ stats_path = "./stats/FULL_BASE"
 
 
 '''Ready Features'''
-# Dataset
-df = pd.read_csv('final_data.tsv', sep='\t')
-labels = np.array(list(df['label']))
+# # Dataset
+# df = pd.read_csv('final_data.tsv', sep='\t')
+# labels = np.array(list(df['label']))
 
-# Paper Features
-# lieb = io.mmread('./Lieb/lieb.mtx')
+# # Paper Features
+# # lieb = io.mmread('./Lieb/lieb.mtx')
 
-gonz = pd.read_pickle(gonz_path)
-print(gonz.shape)
-# gonz = gonz.iloc[:, -10:]
-gonz = sparse.csr_matrix(gonz.values)
+# gonz = pd.read_pickle(gonz_path)
+# print(gonz.shape)
+# # gonz = gonz.iloc[:, -10:]
+# gonz = sparse.csr_matrix(gonz.values)
 
-bush = pd.read_pickle(bush_path)
-# bush = bush.iloc[:, -10:]
-bush = sparse.csr_matrix(bush.values)
+# bush = pd.read_pickle(bush_path)
+# # bush = bush.iloc[:, -10:]
+# bush = sparse.csr_matrix(bush.values)
 
-josh = pd.read_pickle(joshi_path)
-# josh = josh.iloc[:, -10:]
-josh = sparse.csr_matrix(josh.values)
+# josh = pd.read_pickle(joshi_path)
+# # josh = josh.iloc[:, -10:]
+# josh = sparse.csr_matrix(josh.values)
 
-# print(lieb.shape, gonz.shape, bush.shape, josh.shape)
+# # print(lieb.shape, gonz.shape, bush.shape, josh.shape)
 
-# Append all Features
-full = sparse.hstack((gonz, bush, josh))
-print(full.shape)
+# # Append all Features
+# full = sparse.hstack((gonz, bush, josh))
+# print(full.shape)
+
+'''Sparse Features'''
+lieb = io.mmread('./Lieb/lieb_unbalanced_csr.mtx')
+gonz = io.mmread('./Gonzalez/gonz_unbalanced_csr.mtx')
+gonz = gonz.tocsc()
+bush = io.mmread('./Bush/bush_unbalanced_csr.mtx')
+bush = bush.tocsc()
+josh = io.mmread('./Context_Incongruity/jco_unbalanced_csr.mtx')
+josh = josh.tocsc()
+
+labels = np.loadtxt('./new_label_unbalanced.txt', dtype=np.int32)
+
+unigram_end = 30467
+
+all_feat = sparse.hstack(
+    (lieb, gonz[:, unigram_end:], bush[:, unigram_end:], josh[:, unigram_end:]))
 
 # Training
 # Initialize model
@@ -88,8 +104,7 @@ def classify(data, labels, model):
 # TRAINING
 
 scores = []
-print(full.shape)
-temp = classify(full, labels, svmmodel)
+temp = classify(all_feat, labels, svmmodel)
 scores.append(temp)
 
 for i in range(0, 1):

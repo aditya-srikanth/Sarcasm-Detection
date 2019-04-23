@@ -9,7 +9,7 @@ import re
 from scipy.sparse import csr_matrix, lil_matrix
 from scipy import io
 
-dataset_path = '../new_data_balanced.tsv'
+dataset_path = '../new_data_unbalanced.tsv'
 
 f = open(dataset_path, 'r', encoding="utf-8-sig")
 qid = 0
@@ -53,11 +53,7 @@ for line in f:
             continue
 
         words = re.findall(r"[\w']+|[.:,!?;]", dialogue)
-
-        try:
-            first_word = words[0]
-        except Exception as e:
-            print(dialogue)
+        first_word = words[0]
 
         stitched = ''
         for word in words:
@@ -136,5 +132,6 @@ for line in f:
 data = csr_matrix(data)
 # with open("lieb.pkl", 'wb') as f:
 #     pickle.dump(data, f)
-io.mmwrite('lieb_newData_balanced.mtx', data)
+print(data.shape)
+io.mmwrite('lieb_unbalanced_csr.mtx', data)
 # print(dict)

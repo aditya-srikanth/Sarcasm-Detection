@@ -4,8 +4,8 @@ import pandas as pd
 import numpy as np 
 from scipy import sparse, io
 
-dataset_path = '../new_data_balanced.tsv'
-out_path = 'gonz_balanced_csr.mtx'
+dataset_path = '../new_data_unbalanced.tsv'
+out_path = 'gonz_unbalanced_csr.mtx'
 # LIWC features
 
 featuremap_dict = {'16':'LP','12':'LP','19':'LP','141':'LP','142':'LP','143':'LP','146':'LP','22':'PP','125':'PP',
@@ -114,7 +114,7 @@ for line in f:
 	contents = line.split('\t')
 	if len(contents) ==2 and "Scene" not in line:
 		dialogue = contents[0].lower()
-		dialogue = dialogue + ' '+ getActions(dialogue).lower()
+		# dialogue = dialogue + ' '+ getActions(dialogue).lower()
 		if len(dialogue) == 0:
 			continue
 
@@ -145,7 +145,7 @@ data = sparse.csr_matrix(data)
 line_index = 0
 print(final_features)
 
-
+print(index)
 print(str(i_excl)+' '+str(i_quest)+' '+str(i_dotdot)+' '+str(i_interj)+' '+str(i_liwcbase))
 f = open(dataset_path,'r', encoding='utf-8-sig')
 f_o1 = open('out.txt','w')

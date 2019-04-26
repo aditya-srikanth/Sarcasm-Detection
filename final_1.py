@@ -44,15 +44,15 @@ lieb_path = './Lieb/lieb.pkl'
 # bf_3 = sparse.hstack((bf, w3))
 # bf_5 = sparse.hstack((bf, w5))
 
-'''Sparse CSR Matrix'''
-bf = io.mmread('./lieb/lieb_balanced_csr.mtx')
-labels = np.loadtxt('./new_label_balanced.txt', dtype=np.int32)
+# '''Sparse CSR Matrix'''
+# bf = io.mmread('./lieb/lieb_balanced_csr.mtx')
+# labels = np.loadtxt('./new_label_balanced.txt', dtype=np.int32)
 
-# Output Args
-stats_path = "./new_stats/L_BASE_BAL"
+# # Output Args
+# stats_path = "./new_stats/L_BASE_BAL"
 
-print(bf.shape)
-print(labels.sum())
+# print(bf.shape)
+# print(labels.sum())
 
 # Training
 # Initialize model
@@ -81,12 +81,27 @@ def classify(data, labels, model):
     return scores
 
 
-print(bf.shape)
+def classify_new(X_train, X_test, y_train, y_test, model):
+    print('Started Training')
+    X_train = X_train.tocsr()
+    X_test = X_test.tocsr()
+
+    model.fit(X_train, y_train.ravel())
+    y_pred = model.predict(X_test)
+    metric = precision_recall_fscore_support(y_test, y_pred)
+    scores.append(metric)
+    print(metric)
+    return scores
+
+
+# print(bf.shape)
 
 scores = []
 
-temp = classify(bf, labels, svmmodel)
-scores.append(temp)
+'''5-FOLD SCRIPT'''
+
+# temp = classify(bf, labels, svmmodel)
+# scores.append(temp)
 
 # temp = classify(bf_1, labels, svmmodel)
 # scores.append(temp)
@@ -96,6 +111,20 @@ scores.append(temp)
 
 # temp = classify(bf_5, labels, svmmodel)
 # scores.append(temp)
+
+'''NEW SCRIPT'''
+
+
+stats_path = "./NEW_STATS_1/L_BASE_BAL"
+train = io.mmread('./lieb/lieb_balanced_train.mtx')
+test = io.mmread('./lieb/lieb_balanced_test.mtx')
+train_labels = np.loadtxt('./balanced_train_labels.txt', dtype=np.int32)
+test_labels = np.loadtxt('./balanced_test_labels.txt', dtype=np.int32)
+
+print(train.shape, test.shape)
+
+temp = classify_new(train, test, train_labels, test_labels, svmmodel)
+scores.append(temp)
 
 for i in range(0, len(scores)):
     plt.title('Performance')

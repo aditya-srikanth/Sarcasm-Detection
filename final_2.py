@@ -48,15 +48,15 @@ base_df_pkl_path = gonz_path
 # bf_5 = pd.concat([bf, w5.iloc[:, 0:4]], axis=1, ignore_index=True)
 
 '''Sparse CSR Matrix'''
-bf = io.mmread('./Gonzalez/gonz_balanced_csr.mtx')
-labels = np.loadtxt('./new_label_balanced.txt', dtype=np.int32)
+# bf = io.mmread('./Gonzalez/gonz_balanced_csr.mtx')
+# labels = np.loadtxt('./new_label_balanced.txt', dtype=np.int32)
 
-stats_path = "./new_stats/G_BASE_BAL"
+# stats_path = "./new_stats/G_BASE_BAL"
 
-print(bf.shape)
-if(bf.shape[0] == 54001):
-    bf = bf[1:, :]
-print(labels.sum())
+# print(bf.shape)
+# if(bf.shape[0] == 54001):
+#     bf = bf[1:, :]
+# print(labels.sum())
 
 # Training
 # Initialize model
@@ -83,10 +83,21 @@ def classify(data, labels, model):
     return scores
 
 
-scores = []
+def classify_new(X_train, X_test, y_train, y_test, model):
+    print('Started Training')
+    X_train = X_train.tocsr()
+    X_test = X_test.tocsr()
+    scores = []
+    model.fit(X_train, y_train.ravel())
+    y_pred = model.predict(X_test)
+    metric = precision_recall_fscore_support(y_test, y_pred)
+    scores.append(metric)
+    print(metric)
+    return scores
+# scores = []
 
-temp = classify(bf, labels, svmmodel)
-scores.append(temp)
+# temp = classify(bf, labels, svmmodel)
+# scores.append(temp)
 
 # temp = classify(bf_1, labels, svmmodel)
 # scores.append(temp)
@@ -96,6 +107,22 @@ scores.append(temp)
 
 # temp = classify(bf_5, labels, svmmodel)
 # scores.append(temp)
+
+
+'''NEW SCRIPT'''
+
+scores = []
+stats_path = "./NEW_STATS_1/G_BASE_BAL"
+train = io.mmread('./gonzalez/gonz_unbal_train.mtx')
+test = io.mmread('./gonzalez/gonz_unbal_test.mtx')
+train_labels = np.loadtxt('./data/unbalanced_train_labels.txt', dtype=np.int32)
+test_labels = np.loadtxt('./data/unbalanced_test_labels.txt', dtype=np.int32)
+
+print(train.shape, test.shape)
+
+temp = classify_new(train, test, train_labels, test_labels, svmmodel)
+scores.append([[[temp]]])
+print(scores)
 
 for i in range(0, len(scores)):
     plt.title('Performance')

@@ -9,8 +9,8 @@ import re
 from scipy.sparse import csr_matrix, lil_matrix
 from scipy import io
 
-dataset_path = '../new_data_balanced.tsv'
-out_path = 'lieb_balanced_csr.mtx'
+dataset_path = '../balanced_test.tsv'
+out_path = 'lieb_balanced_test.mtx'
 
 f = open(dataset_path, 'r', encoding="utf-8-sig")
 qid = 0

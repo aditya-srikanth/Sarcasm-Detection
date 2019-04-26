@@ -5,8 +5,10 @@ import re
 from scipy.sparse import csr_matrix, lil_matrix
 from scipy import io
 
-dataset_path = '../new_data_balanced.tsv'
-out_path = 'bush_balanced_csr.mtx'
+dataset_path = '../balanced_train.tsv'
+test_path = '../balanced_test.tsv'
+out_path = 'bush_balanced_train.mtx'
+out_path_test = 'bush_balanced_test.mtx'
 
 # Sentiment wordlist load
 f = open('sentiwordlist', 'r')
@@ -193,7 +195,7 @@ for line in f:
             continue
 
         words = re.findall(r"[\w']+|[.:,!?;]", dialogue)
-        first_word = words[0]
+        # first_word = words[0]
 
         for word in words:
             if word not in dict:
@@ -242,9 +244,9 @@ for line in f:
             continue
         words = re.findall(r"[\w']+|[.,!?;]", dialogue)
 
-        first_word = words[0]
-        speaker = first_word+':'
-        words.append(speaker)
+        # first_word = words[0]
+        # speaker = first_word+':'
+        # words.append(speaker)
 
         s_quotes = getQuotes(input, i_quotes)
         s_hyperbole = getHyperbole(input, i_hyp)

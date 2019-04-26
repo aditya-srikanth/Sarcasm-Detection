@@ -1,11 +1,42 @@
 import re
-from scipy.sparse import csr_matrix, lil_matrix
+from scipy.sparse import lil_matrix, csr_matrix
 from scipy import io
+import numpy as np
 
 dataset_path = '../data/unbalanced_train.tsv'
 test_path = '../data/unbalanced_test.tsv'
-out_path = 'jc_unbal_train.mtx'
-out_path_test = 'jc_unbal_test.mtx'
+out_path = 'gonz_unbal_train.mtx'
+out_path_test = 'gonz_unbal_test.mtx'
+
+
+def getLIWCFeatures(input, i_base):
+
+    input = str(input)
+    input = input.lower()
+
+    liwc_dict = {'LP': 0, 'PP': 0, 'PC': 0}
+    words = input.split(' ')
+
+    for word in words:
+        app_features = ''
+        for key in sentiment_dict.keys():
+            if word.startswith(key):
+                app_features = sentiment_dict[key]
+
+        if app_features.lower() == '':
+            continue
+
+        for app_feature in app_features.split(' '):
+            if app_feature in featuremap_dict:
+                category = featuremap_dict[app_feature]
+                liwc_dict[category] += 1
+
+    output = []
+    output.append((i_base, liwc_dict['LP']))
+    output.append((i_base+1, liwc_dict['PP']))
+    output.append((i_base+2, liwc_dict['PC']))
+
+    return output
 
 
 def getInterjection(input, i_interj):
@@ -26,87 +57,6 @@ def getPunctuation(input, i_excl, i_quest, i_dotdot):
     return output
 
 
-def getExplicit(input, i_base):
-    output = []
-    input = str(input).lower()
-    words = re.findall(r"[\w']+|[.:,!?;]", input)
-    abs_pos_score = 0
-    flips = 0
-    largest_sequence = 0
-    curr_sequence = 0
-    abs_neg_score = 0
-    last_polarity = +1
-
-    for word in words:
-        if word.lower() in sentiment_dict:
-            sentiment = sentiment_dict[word.lower()]
-
-            if int(sentiment) == 1:
-                #print(word+' found as positive')
-                abs_pos_score += 1
-                if last_polarity == 1:
-                    curr_sequence += 1
-                else:
-                    flips += 1
-                    if largest_sequence > curr_sequence:
-                        largest_sequence = curr_sequence
-                    curr_sequence = 0
-                last_polarity = 1
-
-            else:
-                #print(word+' found as negative')
-                abs_neg_score += 1
-                if last_polarity == -1:
-                    curr_sequence += 1
-                else:
-                    flips += 1
-                    if largest_sequence > curr_sequence:
-                        largest_sequence = curr_sequence
-                    curr_sequence = 0
-                last_polarity = -1
-
-    if (abs_pos_score > abs_neg_score):
-        polarity = 1
-    elif (abs_neg_score > abs_pos_score):
-        polarity = 2
-    else:
-        polarity = 3
-
-    output.append((i_base, abs_pos_score))
-    output.append((i_base+1, abs_neg_score))
-    output.append((i_base+2, polarity))
-    output.append((i_base+3, largest_sequence))
-    output.append((i_base+4, flips))
-
-    return output
-
-
-def getImplicitFeatures(input):
-    output = []
-    input = str(input).lower()
-
-    word_count = {}
-    word_ids = []
-    words = re.findall(r"[\w']+|[.:,!?;]", input)
-
-    for word in words:
-        if word in implicit_dict:
-            index = implicit_dict[word]
-            if index in word_count:
-                word_count[index] += 1
-            else:
-                word_count[index] = 1
-                word_ids.append(index)
-
-    word_ids = list(set(word_ids))
-    word_ids.sort()
-
-    for id in word_ids:
-        output.append((id, word_count[id]))
-
-    return output
-
-
 def getFeatures(dataset_path, out_path):
     f = open(dataset_path, 'r', encoding='utf-8-sig')
     num_rows = len(list(f))
@@ -115,17 +65,15 @@ def getFeatures(dataset_path, out_path):
     line_index = 0
     for line in f:
         contents = line.split('\t')
-
         if len(contents) >= 2:
-            dialogue = contents[0].lower()
 
+            dialogue = contents[0].lower()
             if len(dialogue) == 0:
                 continue
 
             s_punct = getPunctuation(line, i_excl, i_quest, i_dotdot)
             s_interj = getInterjection(line, i_interj)
-            s_explicit = getExplicit(line, i_base)
-            s_implicit = getImplicitFeatures(line)
+            s_liwc = getLIWCFeatures(dialogue, i_liwcbase)
 
             feat = []
             word_ids = []
@@ -143,13 +91,14 @@ def getFeatures(dataset_path, out_path):
                 feat.append((id, 1))
             feat.append(s_punct)
             feat.append(s_interj)
-            feat.append(s_explicit)
-            feat.append(s_implicit)
+            feat.append(s_liwc)
 
+            # Add it to data
             for feature in feat:
                 if feature == None:
                     continue
                 elif type(feature) != list:
+                    # print(feature)
                     data[line_index, (feature[0])-1] = feature[1]
                 if type(feature) == list:
                     for feature_element in feature:
@@ -160,20 +109,30 @@ def getFeatures(dataset_path, out_path):
             print(line_index)
 
     # Save it as mtx
+    data = csr_matrix(data)
     print('Final Data:'+str(data.shape))
     io.mmwrite(out_path, data)
     print('Finished Saving')
 
 
-# Sentiment wordlist load
-f = open('sentiwordlist', 'r')
+# LIWC DICTIONARY
+featuremap_dict = {'16': 'LP', '12': 'LP', '19': 'LP', '141': 'LP', '142': 'LP', '143': 'LP', '146': 'LP', '22': 'PP', '125': 'PP',
+                   '126': 'PP', '127': 'PP', '128': 'PP', '129': 'PP', '130': 'PP', '131': 'PP', '132': 'PP', '133': 'PP', '134': 'PP',
+                   '135': 'PP', '136': 'PP', '137': 'PP', '138': 'PP', '139': 'PP', '140': 'PP', '366': 'PP', '121': 'PC', '122': 'PC', '123': 'PC',
+                   '124': 'PC', '148': 'PC', '149': 'PC', '150': 'PC', '354': 'PC', '356': 'PC', '357': 'PC', '358': 'PC', '359': 'PC'}
+
+# PREPARE DICTIONARY WITH MAPPINGS FROM WORD TO APP_FEATURE
+f = open('LIWC_words', 'r')
 sentiment_dict = {}
 
 for line in f:
-    words = line.split(' ')
-    sentiment_dict[words[0]] = words[1]
+    words = line.split('\t')
+    temp_string = ''
+    for i in range(1, len(words)):
+        temp_string += words[i]+' '
+    sentiment_dict[words[0].replace('*', '')] = temp_string.strip()
 
-# Interjection wordlist load
+# PREPARE INTERJECTIONS ARRAY
 f = open('interj_words', 'r')
 interj_arr = []
 
@@ -182,17 +141,6 @@ for line in f:
 
     if len(words) > 0:
         interj_arr.append(words[0].strip())
-
-# implicit phrases
-f = open('implicit_phrases', 'r')
-implicit_arr = []
-implicit_dict = {}
-
-for line in f:
-    words = line.split(' ')
-
-    if len(words) > 0:
-        implicit_arr.append(words[0].strip())
 
 # PREPARE UNIGRAMS DICTIONARY
 num_examples = 0
@@ -222,19 +170,14 @@ for line in f:
             else:
                 word_count[word] += word_count[word]
 
-# Add Implicit Dictionary also
-for phrase in implicit_arr:
-    implicit_dict[phrase] = index
-    index += 1
-
-# Joshi Features
+# Gonazalez Featuers
 i_excl = index+1
 i_quest = index+2
-i_dotdot = index + 3
-i_interj = index + 4
-i_base = index + 5
-final_features = i_base + 5
+i_dotdot = index+3
+i_interj = index+4
+i_liwcbase = index+5
+final_features = i_liwcbase + 2
 
-# Main Extraction of Features
+# Initialize Resulting Feature Vectors
 getFeatures(dataset_path, out_path)
 getFeatures(test_path, out_path_test)

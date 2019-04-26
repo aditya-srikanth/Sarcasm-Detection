@@ -5,3 +5,4 @@
 *.mtx
 wembedding/glove.840B.300d.w2vformat.txt
 wembedding/glove.840B.300d.txt
+data/

@@ -1,11 +1,18 @@
 import re
 from scipy.sparse import csr_matrix, lil_matrix
 from scipy import io
+import pandas as pd
+import sys
 
-dataset_path = '../data/unbalanced_train.tsv'
-test_path = '../data/unbalanced_test.tsv'
-out_path = 'jc_unbal_train.mtx'
-out_path_test = 'jc_unbal_test.mtx'
+dataset_path = '../data/explain.tsv'
+test_path = '../data/explain_test.tsv'
+out_path = 'jc_expl_train.mtx'
+out_path_test = 'jc_expl_test.mtx'
+
+# dataset_path = sys.argv[1]
+# test_path = sys.argv[3]
+# out_path = sys.argv[2]
+# out_path_test = sys.argv[4]
 
 
 def getInterjection(input, i_interj):
@@ -35,43 +42,46 @@ def getExplicit(input, i_base):
     largest_sequence = 0
     curr_sequence = 0
     abs_neg_score = 0
-    last_polarity = +1
+    last_polarity = 1
 
     for word in words:
         if word.lower() in sentiment_dict:
             sentiment = sentiment_dict[word.lower()]
 
             if int(sentiment) == 1:
-                #print(word+' found as positive')
+                # print(word+' found as positive')
                 abs_pos_score += 1
                 if last_polarity == 1:
                     curr_sequence += 1
                 else:
                     flips += 1
-                    if largest_sequence > curr_sequence:
+                    if curr_sequence > largest_sequence:
                         largest_sequence = curr_sequence
                     curr_sequence = 0
                 last_polarity = 1
 
             else:
-                #print(word+' found as negative')
+                # print(word+' found as negative')
                 abs_neg_score += 1
                 if last_polarity == -1:
                     curr_sequence += 1
                 else:
                     flips += 1
-                    if largest_sequence > curr_sequence:
+                    if curr_sequence > largest_sequence:
                         largest_sequence = curr_sequence
                     curr_sequence = 0
                 last_polarity = -1
+    # print(abs_pos_score)
+    # print(abs_neg_score)
 
-    if (abs_pos_score > abs_neg_score):
+    if abs_pos_score > abs_neg_score:
         polarity = 1
-    elif (abs_neg_score > abs_pos_score):
+    elif abs_neg_score > abs_pos_score:
         polarity = 2
     else:
         polarity = 3
-
+    # print(polarity)
+    # print("-----")
     output.append((i_base, abs_pos_score))
     output.append((i_base+1, abs_neg_score))
     output.append((i_base+2, polarity))
@@ -81,21 +91,25 @@ def getExplicit(input, i_base):
     return output
 
 
-def getImplicitFeatures(input):
+def getImplicitFeatures(inp):
     output = []
-    input = str(input).lower()
+    inp = str(inp).lower()
 
     word_count = {}
     word_ids = []
-    words = re.findall(r"[\w']+|[.:,!?;]", input)
-
+    words = re.findall(r"[\w']+|[.:,!?;]", inp)
+    # print(words)
     for word in words:
         if word in implicit_dict:
+            # print(str(word)+": in implicit_dict")
             index = implicit_dict[word]
+            # print(str(index) + ": index")
             if index in word_count:
                 word_count[index] += 1
             else:
                 word_count[index] = 1
+                # print(word)
+                # print(index)
                 word_ids.append(index)
 
     word_ids = list(set(word_ids))
@@ -133,11 +147,12 @@ def getFeatures(dataset_path, out_path):
             for word in words:
                 if word in dict:
                     index = dict[word]
-                    if word_count[word] >= 3:
+                    if word_count[word] >= 0:
                         word_ids.append(index)
 
             word_ids = list(set(word_ids))
             word_ids.sort()
+
             # Unigrams
             for id in word_ids:
                 feat.append((id, 1))
@@ -150,11 +165,11 @@ def getFeatures(dataset_path, out_path):
                 if feature == None:
                     continue
                 elif type(feature) != list:
-                    data[line_index, (feature[0])-1] = feature[1]
+                    data[line_index, (feature[0])] = feature[1]
                 if type(feature) == list:
                     for feature_element in feature:
-                        data[line_index, (feature_element[0]) -
-                             1] = feature_element[1]
+                        data[line_index, (feature_element[0])
+                             ] = feature_element[1]
 
             line_index += 1
             print(line_index)
@@ -163,6 +178,8 @@ def getFeatures(dataset_path, out_path):
     print('Final Data:'+str(data.shape))
     io.mmwrite(out_path, data)
     print('Finished Saving')
+    ans = data.todense()
+    return ans
 
 
 # Sentiment wordlist load
@@ -194,6 +211,8 @@ for line in f:
     if len(words) > 0:
         implicit_arr.append(words[0].strip())
 
+# implicit_arr = list(set(implicit_arr))
+
 # PREPARE UNIGRAMS DICTIONARY
 num_examples = 0
 f = open(dataset_path, 'r', encoding='utf-8-sig')
@@ -201,7 +220,7 @@ f = open(dataset_path, 'r', encoding='utf-8-sig')
 dict = {}
 word_count = {}
 rev_dict = {}
-index = 1
+index = 0
 
 for line in f:
     num_examples += 1
@@ -222,19 +241,46 @@ for line in f:
             else:
                 word_count[word] += word_count[word]
 
+# Print
+names = []
+for key in rev_dict:
+    names.append(rev_dict[key])
+# print(names)
+
+unig = index
+
 # Add Implicit Dictionary also
 for phrase in implicit_arr:
+    if phrase in implicit_dict:
+        continue
     implicit_dict[phrase] = index
     index += 1
 
+for key in implicit_dict:
+    names.append(key)
+# print(names)
+
 # Joshi Features
-i_excl = index+1
-i_quest = index+2
-i_dotdot = index + 3
-i_interj = index + 4
-i_base = index + 5
+i_excl = index
+i_quest = index+1
+i_dotdot = index + 2
+i_interj = index + 3
+i_base = index + 4
 final_features = i_base + 5
 
+names.append('Excalamation')
+names.append('Question_Mark')
+names.append('dotdotdot')
+names.append('Interjection')
+names.append('Abs_Pos_Score')
+names.append('Abs_Neg_Score')
+names.append('Polarity')
+names.append('Largest_Sequence')
+names.append('Flips')
+
 # Main Extraction of Features
-getFeatures(dataset_path, out_path)
-getFeatures(test_path, out_path_test)
+ans = getFeatures(dataset_path, out_path)
+ans2 = getFeatures(test_path, out_path_test)
+# df = pd.DataFrame(ans, columns=names)
+# df.to_csv('joshi.csv')
+print(index-unig)

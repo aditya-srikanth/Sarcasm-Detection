@@ -10,54 +10,18 @@ from sklearn.feature_selection import chi2
 
 import matplotlib.pyplot as plt
 
-# Gonzalez Paper (2nd)
-gonz_path = './Gonzalez/gonz_df.pkl'
+'''NEW SCRIPT'''
 
-# # Bush Paper (3rd)
-bush_path = './Bush/buschmeier.pkl'
-
-# # Joshi Paper (4th) Paper
-joshi_path = './Context_Incongruity/jc_features_df.pkl'
-
-''' Starts Here '''
-# Input Args
-base_df_pkl_path = bush_path
-
-# Output Args
-stats_path = "./stats/B_GLOVE_"
+scores = []
+stats_path = "./NEW_STATS_1/J_EXPLAIN"
+train = io.mmread('./joshi/jc_expl_train.mtx')
+test = io.mmread('./joshi/jc_expl_test.mtx')
+train_labels = np.loadtxt('./data/explain_labels.txt', dtype=np.int32)
+test_labels = np.loadtxt('./data/explain_labels_test.txt', dtype=np.int32)
 
 
-# '''Ready Features'''
-# # Dataset
-# df = pd.read_csv('./final_data.tsv', sep='\t')
-# labels = np.array(list(df['label']))
+print(train.shape, test.shape)
 
-# bf = pd.read_pickle(base_df_pkl_path)
-
-# w1 = pd.read_pickle('./WordEmbedding/glove_wembed_1.pkl')
-# w3 = pd.read_pickle('./WordEmbedding/glove_wembed_3.pkl')
-# w5 = pd.read_pickle('./WordEmbedding/glove_wembed_5.pkl')
-
-# # Append WordEmbedding Feature
-# bf_1 = pd.concat([bf, w1.iloc[:, 0:4]], axis=1, ignore_index=True)
-# bf_3 = pd.concat([bf, w3.iloc[:, 0:4]], axis=1, ignore_index=True)
-# bf_5 = pd.concat([bf, w5.iloc[:, 0:4]], axis=1, ignore_index=True)
-
-'''Sparse CSR Matrix'''
-bf = io.mmread('./bush/bush_balanced_csr.mtx')
-labels = np.loadtxt('./new_label_balanced.txt', dtype=np.int32)
-
-print(bf.shape)
-stats_path = "./new_stats/B_BASE_BAL"
-
-# # Stats path
-# stats_path = './new_stats/B_BASE_UNBAL'
-
-# print(bf.shape)
-# print(labels.sum())
-
-# Training
-# Initialize model
 svmmodel = svm.SVC(gamma='scale', class_weight='balanced',
                    C=20.0, cache_size=1000)
 
@@ -70,44 +34,37 @@ def classify(data, labels, model):
     for train, test in kfold.split(data):
         print(i)
         data = data.tocsr()
-        X_train, X_test, y_train, y_test = data[train], data[test], labels[train], labels[test]
-        X_train = sparse.csr_matrix(X_train)
+        X_train, X_test, y_train, y_test = data[train,
+                                                :], data[test, :], labels[train], labels[test]
         model.fit(X_train, y_train.ravel())
         y_pred = model.predict(X_test)
         metric = precision_recall_fscore_support(y_test, y_pred)
         scores.append(metric)
         print("Done Interation: %d" % (i))
-        print(scores)
+        print(metric)
         i += 1
     return scores
 
 
-scores = []
+def classify_new(X_train, X_test, y_train, y_test, model):
+    print('Started Training')
+    X_train = X_train.tocsr()
+    X_test = X_test.tocsr()
+    scores = []
+    model.fit(X_train, y_train.ravel())
+    y_pred = model.predict(X_test)
+    metric = precision_recall_fscore_support(y_test, y_pred)
+    scores.append(metric)
+    print(metric)
+    return scores
 
-temp = classify(bf, labels, svmmodel)
+
+# Training
+temp = classify_new(train, test, train_labels, test_labels, svmmodel)
 scores.append(temp)
 
-# # temp = classify(bf_1, labels, svmmodel)
-# # scores.append(temp)
-
-# # temp = classify(bf_3, labels, svmmodel)
-# # scores.append(temp)
-
-# # temp = classify(bf_5, labels, svmmodel)
-# # scores.append(temp)
-
-for i in range(0, len(scores)):
-    plt.title('Performance')
-    plt.plot([x for x in range(len(scores[i]))], [score[0][1]
-                                                  for score in scores[i]])
-    plt.plot([x for x in range(len(scores[i]))], [score[1][1]
-                                                  for score in scores[i]])
-    plt.plot([x for x in range(len(scores[i]))], [score[2][1]
-                                                  for score in scores[i]])
-    plt.legend(['Precison', 'Recall', 'F1-Score'])
-    plt.savefig(stats_path+str(i))
-    # plt.show()
-
+# Storing Results
+for i in range(0, 1):
     confidence = []
     p_scores = [score[0][1] for score in scores[i]]
     r_scores = [score[1][1] for score in scores[i]]

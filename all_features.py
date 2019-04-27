@@ -1,87 +1,45 @@
 import pandas as pd
 import numpy as np
-from scipy import io, sparse
-import pickle
+from scipy import sparse, io
 
 from sklearn import svm
 from sklearn.model_selection import KFold
 from sklearn.metrics import precision_recall_fscore_support
 from sklearn.feature_extraction.text import CountVectorizer
-from sklearn.feature_selection import chi2, RFE, f_regression
-from sklearn.preprocessing import MinMaxScaler
+from sklearn.feature_selection import chi2
 
 import matplotlib.pyplot as plt
-# Lieb Paper (1st)
-lieb_path = './Lieb/lieb.pkl'
 
-# Gonzalez Paper (2nd)
-gonz_path = './Gonzalez/gonz_df.pkl'
+'''NEW SCRIPT'''
 
-# # Bush Paper (3rd)
-bush_path = './Bush/buschmeier.pkl'
+scores = []
+stats_path = "./NEW_STATS_1/ALL_BALANCED"
+lieb_train = io.mmread('./lieb/lieb_balanced_train.mtx')
+lieb_test = io.mmread('./lieb/lieb_balanced_test.mtx')
+gonz_train = io.mmread('./gonzalez/gonz_balanced_train.mtx')
+gonz_train = gonz_train.tocsc()
+gonz_test = io.mmread('./gonzalez/gonz_balanced_test.mtx')
+gonz_test = gonz_test.tocsc()
+bush_train = io.mmread('./bush/bush_balanced_train.mtx')
+bush_train = bush_train.tocsc()
+bush_test = io.mmread('./bush/bush_balanced_test.mtx')
+bush_test = bush_test.tocsc()
+josh_train = io.mmread('./joshi/jc_balanced_train.mtx')
+josh_train = josh_train.tocsc()
+josh_test = io.mmread('./joshi/jc_balanced_test.mtx')
+josh_test = josh_test.tocsc()
 
-# # Joshi Paper (4th) Paper
-joshi_path = './Context_Incongruity/jc_features_df.pkl'
+train_labels = np.loadtxt('./data/balanced_train_labels.txt', dtype=np.int32)
+test_labels = np.loadtxt('./data/balanced_test_labels.txt', dtype=np.int32)
 
-''' Starts Here '''
-# Input Args
-# base_df_pkl_path = gonz_path
+all_feat_train = sparse.hstack(
+    (lieb_train, gonz_train[:, -7:], bush_train[:, -8:-4], josh_train[:, -64:-9],  josh_train[:, -5:]))
+all_feat_test = sparse.hstack(
+    (lieb_test, gonz_test[:, -7:], bush_test[:, -8:-4], josh_test[:, -64:-9],  josh_test[:, -5:]))
 
-# Output Args
 
-
-'''Ready Features'''
-# # Dataset
-# df = pd.read_csv('final_data.tsv', sep='\t')
-# labels = np.array(list(df['label']))
-
-# # Paper Features
-# # lieb = io.mmread('./Lieb/lieb.mtx')
-
-# gonz = pd.read_pickle(gonz_path)
-# print(gonz.shape)
-# # gonz = gonz.iloc[:, -10:]
-# gonz = sparse.csr_matrix(gonz.values)
-
-# bush = pd.read_pickle(bush_path)
-# # bush = bush.iloc[:, -10:]
-# bush = sparse.csr_matrix(bush.values)
-
-# josh = pd.read_pickle(joshi_path)
-# # josh = josh.iloc[:, -10:]
-# josh = sparse.csr_matrix(josh.values)
-
-# # print(lieb.shape, gonz.shape, bush.shape, josh.shape)
-
-# # Append all Features
-# full = sparse.hstack((gonz, bush, josh))
-# print(full.shape)
-
-'''Sparse Features'''
-lieb = io.mmread('./lieb/lieb_unbalanced_csr.mtx')
-gonz = io.mmread('./gonzalez/gonz_unbalanced_csr.mtx')
-gonz = gonz.tocsc()
-bush = io.mmread('./bush/bush_unbalanced_csr.mtx')
-bush = bush.tocsc()
-josh = io.mmread('./joshi/jc_unbalanced_csr.mtx')
-josh = josh.tocsc()
-
-labels = np.loadtxt('./new_label_unbalanced.txt', dtype=np.int32)
-
-stats_path = "./new_stats/ALL_BASE_UNBAL"
-
-# For Unbalanced Dataset
-unigram_end = 30467
-# For Balanced Dataser
-# unigram_end = 37149
-
-all_feat = sparse.hstack(
-    (lieb, gonz[:, unigram_end:], bush[:, unigram_end:], josh[:, unigram_end:]))
-
-# Training
-# Initialize model
 svmmodel = svm.SVC(gamma='scale', class_weight='balanced',
-                   C=20.0, cache_size=4000)
+                   C=20.0, cache_size=1000)
 
 
 def classify(data, labels, model):
@@ -91,7 +49,6 @@ def classify(data, labels, model):
     i = 0
     for train, test in kfold.split(data):
         print(i)
-#         dd = SparseRowIndexer(data)
         data = data.tocsr()
         X_train, X_test, y_train, y_test = data[train,
                                                 :], data[test, :], labels[train], labels[test]
@@ -100,29 +57,31 @@ def classify(data, labels, model):
         metric = precision_recall_fscore_support(y_test, y_pred)
         scores.append(metric)
         print("Done Interation: %d" % (i))
-        print(scores)
+        print(metric)
         i += 1
     return scores
 
 
-# TRAINING
+def classify_new(X_train, X_test, y_train, y_test, model):
+    print('Started Training')
+    X_train = X_train.tocsr()
+    X_test = X_test.tocsr()
+    scores = []
+    model.fit(X_train, y_train.ravel())
+    y_pred = model.predict(X_test)
+    metric = precision_recall_fscore_support(y_test, y_pred)
+    scores.append(metric)
+    print(metric)
+    return scores
 
-scores = []
-temp = classify(all_feat, labels, svmmodel)
+
+# Training
+temp = classify_new(all_feat_train, all_feat_test,
+                    train_labels, test_labels, svmmodel)
 scores.append(temp)
 
+# Storing Results
 for i in range(0, 1):
-    plt.title('Performance')
-    plt.plot([x for x in range(len(scores[i]))], [score[0][1]
-                                                  for score in scores[i]])
-    plt.plot([x for x in range(len(scores[i]))], [score[1][1]
-                                                  for score in scores[i]])
-    plt.plot([x for x in range(len(scores[i]))], [score[2][1]
-                                                  for score in scores[i]])
-    plt.legend(['Precison', 'Recall', 'F1-Score'])
-    plt.savefig(stats_path+str(i))
-    # plt.show()
-
     confidence = []
     p_scores = [score[0][1] for score in scores[i]]
     r_scores = [score[1][1] for score in scores[i]]

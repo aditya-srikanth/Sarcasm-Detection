@@ -9,7 +9,7 @@ import re
 from scipy.sparse import csr_matrix, lil_matrix
 from scipy import io
 
-dataset_path = '../balanced_test.tsv'
+dataset_path = '../data/explain.tsv'
 out_path = 'lieb_balanced_test.mtx'
 
 f = open(dataset_path, 'r', encoding="utf-8-sig")
@@ -17,7 +17,7 @@ qid = 0
 dict = {}
 word_count = {}
 rev_dict = {}
-index = 1
+index = 0
 row = np.zeros(())
 
 
@@ -71,7 +71,6 @@ for line in f:
                 word_count[word] = 1
             else:
                 word_count[word] += word_count[word]
-
 f = open(dataset_path, 'r', encoding='utf-8-sig')
 f_o1 = open('out', 'w')
 f_o1.write('# Vocabulary size:'+str(index)+'\n')
@@ -135,4 +134,6 @@ data = csr_matrix(data)
 #     pickle.dump(data, f)
 print(data.shape)
 io.mmwrite(out_path, data)
+print(dict)
+print(('gravity' in dict))
 # print(dict)

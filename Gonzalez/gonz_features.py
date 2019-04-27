@@ -2,11 +2,18 @@ import re
 from scipy.sparse import lil_matrix, csr_matrix
 from scipy import io
 import numpy as np
+import pandas as pd
+import sys
 
-dataset_path = '../data/unbalanced_train.tsv'
-test_path = '../data/unbalanced_test.tsv'
-out_path = 'gonz_unbal_train.mtx'
-out_path_test = 'gonz_unbal_test.mtx'
+# dataset_path = '../data/explain.tsv'
+# test_path = '../data/balanced_test.tsv'
+# out_path = 'gonz_bal_train.mtx'
+# out_path_test = 'gonz_bal_test.mtx'
+
+dataset_path = sys.argv[1]
+test_path = sys.argv[3]
+out_path = sys.argv[2]
+out_path_test = sys.argv[4]
 
 
 def getLIWCFeatures(input, i_base):
@@ -60,7 +67,7 @@ def getPunctuation(input, i_excl, i_quest, i_dotdot):
 def getFeatures(dataset_path, out_path):
     f = open(dataset_path, 'r', encoding='utf-8-sig')
     num_rows = len(list(f))
-    data = lil_matrix((num_rows, final_features))
+    data = lil_matrix((num_rows, final_features+1))
     f = open(dataset_path, 'r', encoding='utf-8-sig')
     line_index = 0
     for line in f:
@@ -81,7 +88,7 @@ def getFeatures(dataset_path, out_path):
             for word in words:
                 if word in dict:
                     index = dict[word]
-                    if word_count[word] >= 3:
+                    if word_count[word] > 0:
                         word_ids.append(index)
 
             word_ids = list(set(word_ids))
@@ -99,11 +106,11 @@ def getFeatures(dataset_path, out_path):
                     continue
                 elif type(feature) != list:
                     # print(feature)
-                    data[line_index, (feature[0])-1] = feature[1]
+                    data[line_index, (feature[0])] = feature[1]
                 if type(feature) == list:
                     for feature_element in feature:
-                        data[line_index, (feature_element[0]) -
-                             1] = feature_element[1]
+                        data[line_index, (feature_element[0])
+                             ] = feature_element[1]
 
             line_index += 1
             print(line_index)
@@ -113,6 +120,7 @@ def getFeatures(dataset_path, out_path):
     print('Final Data:'+str(data.shape))
     io.mmwrite(out_path, data)
     print('Finished Saving')
+    return data.todense()
 
 
 # LIWC DICTIONARY
@@ -149,7 +157,7 @@ f = open(dataset_path, 'r', encoding='utf-8-sig')
 dict = {}
 word_count = {}
 rev_dict = {}
-index = 1
+index = 0
 
 for line in f:
     num_examples += 1
@@ -169,15 +177,32 @@ for line in f:
                 word_count[word] = 1
             else:
                 word_count[word] += word_count[word]
+names = []
+for key in dict:
+    names.append(key)
 
 # Gonazalez Featuers
-i_excl = index+1
-i_quest = index+2
-i_dotdot = index+3
-i_interj = index+4
-i_liwcbase = index+5
+
+i_excl = index
+i_quest = index+1
+i_dotdot = index+2
+i_interj = index+3
+i_liwcbase = index+4
 final_features = i_liwcbase + 2
+# print(len(names))
+
+names.append('Exclamation')
+names.append('Question_Mark')
+names.append('dotdotdot')
+names.append('Interjection')
+names.append('LP')
+names.append('PP')
+names.append('PC')
+
+# print(len(names))
 
 # Initialize Resulting Feature Vectors
-getFeatures(dataset_path, out_path)
-getFeatures(test_path, out_path_test)
+ans = getFeatures(dataset_path, out_path)
+# df = pd.DataFrame(ans, columns=names)
+# df.to_csv('gonz.csv')
+# getFeatures(test_path, out_path_test)

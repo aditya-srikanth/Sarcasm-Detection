@@ -10,61 +10,18 @@ from sklearn.feature_selection import chi2
 
 import matplotlib.pyplot as plt
 
-# Gonzalez Paper (2nd)
-gonz_path = './Gonzalez/gonz_df.pkl'
+'''NEW SCRIPT'''
 
-# # Bush Paper (3rd)
-bush_path = './Bush/buschmeier.pkl'
-
-# # Joshi Paper (4th) Paper
-joshi_path = './Context_Incongruity/jc_features_df_Balanced.pkl'
-
-''' Starts Here '''
-# Input Args
-base_df_pkl_path = joshi_path
-
-# Output Args
+scores = []
+stats_path = "./NEW_STATS_1/J_EXPLAIN"
+train = io.mmread('./joshi/jc_expl_train.mtx')
+test = io.mmread('./joshi/jc_expl_test.mtx')
+train_labels = np.loadtxt('./data/explain_labels.txt', dtype=np.int32)
+test_labels = np.loadtxt('./data/explain_labels_test.txt', dtype=np.int32)
 
 
-'''Ready Features'''
-# Dataset
-# df = np.loadtxt('./new_label.txt')
+print(train.shape, test.shape)
 
-
-# labels = np.array(list(df['label']))
-
-# bf = pd.read_pickle(base_df_pkl_path)
-# print(bf)
-
-w1 = pd.read_pickle('./wembedding/wembed_1.pkl')
-w1 = w1.iloc[:, 0:4]
-w3 = pd.read_pickle('./wembedding/wembed_3.pkl')
-w3 = w3.iloc[:, 0:4]
-w5 = pd.read_pickle('./wembedding/wembed_5.pkl')
-w5 = w5.iloc[:, 0:4]
-
-
-# Sparse Matrices
-# # Sparse Load
-# bf = io.mmread('./joshi/jc_quotes.mtx')
-# # labels = np.loadtxt('./new_label_balanced.txt', dtype=np.int32)
-# labels = pd.read_csv('./dataset', sep='\t', names=['text', 'label'])
-# print(labels)
-# labels = labels['label']
-# labels = np.array(list(labels))
-# print(labels)
-# stats_path = "./J_BASE_QUOTES"
-
-# # # Append WordEmbedding Feature
-# bf_1 = sparse.hstack((bf, w1))
-# bf_3 = sparse.hstack((bf, w3))
-# bf_5 = sparse.hstack((bf, w5))
-
-# print(bf.shape)
-# print(labels.sum())
-
-# Training
-# Initialize model
 svmmodel = svm.SVC(gamma='scale', class_weight='balanced',
                    C=20.0, cache_size=1000)
 
@@ -102,48 +59,12 @@ def classify_new(X_train, X_test, y_train, y_test, model):
     return scores
 
 
-# scores = []
-
-# temp = classify(bf, labels, svmmodel)
-# scores.append(temp)
-
-# temp = classify(bf_1, labels, svmmodel)
-# scores.append(temp)
-
-# temp = classify(bf_3, labels, svmmodel)
-# scores.append(temp)
-
-# temp = classify(bf_5, labels, svmmodel)
-# scores.append(temp)
-
-
-'''NEW SCRIPT'''
-
-scores = []
-stats_path = "./NEW_STATS_1/J_BASE_UNBAL"
-train = io.mmread('./joshi/jc_unbal_train.mtx')
-test = io.mmread('./joshi/jc_unbal_test.mtx')
-train_labels = np.loadtxt('./data/unbalanced_train_labels.txt', dtype=np.int32)
-test_labels = np.loadtxt('./data/unbalanced_test_labels.txt', dtype=np.int32)
-
-print(train.shape, test.shape)
-
+# Training
 temp = classify_new(train, test, train_labels, test_labels, svmmodel)
 scores.append(temp)
-print(scores)
 
+# Storing Results
 for i in range(0, 1):
-    plt.title('Performance')
-    plt.plot([x for x in range(len(scores[i]))], [score[0][1]
-                                                  for score in scores[i]])
-    plt.plot([x for x in range(len(scores[i]))], [score[1][1]
-                                                  for score in scores[i]])
-    plt.plot([x for x in range(len(scores[i]))], [score[2][1]
-                                                  for score in scores[i]])
-    plt.legend(['Precison', 'Recall', 'F1-Score'])
-    plt.savefig(stats_path+str(i))
-    # plt.show()
-
     confidence = []
     p_scores = [score[0][1] for score in scores[i]]
     r_scores = [score[1][1] for score in scores[i]]

@@ -9,9 +9,11 @@ from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.feature_selection import chi2
 
 import matplotlib.pyplot as plt
+import pickle
 
 '''NEW SCRIPT'''
 
+model_path = "GONZ_MODEL.pkl"
 scores = []
 stats_path = "./NEW_STATS_1/G_EXPLAIN"
 train = io.mmread('./gonz/gonz_expl_train.mtx')
@@ -54,6 +56,7 @@ def classify_new(X_train, X_test, y_train, y_test, model):
     y_pred = model.predict(X_test)
     metric = precision_recall_fscore_support(y_test, y_pred)
     scores.append(metric)
+    pickle.dump(model, open(model_path, 'wb'))
     print(metric)
     return scores
 

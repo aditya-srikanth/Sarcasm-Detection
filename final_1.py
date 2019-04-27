@@ -9,13 +9,15 @@ from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.feature_selection import chi2
 
 import matplotlib.pyplot as plt
+import pickle
 
 '''NEW SCRIPT'''
 
+model_path = "LIEB_MODEL.pkl"
 scores = []
 stats_path = "./NEW_STATS_1/L_EXPLAIN"
-train = io.mmread('./lieb/jc_expl_train.mtx')
-test = io.mmread('./lieb/jc_expl_test.mtx')
+train = io.mmread('./lieb/lieb_expl_train.mtx')
+test = io.mmread('./lieb/lieb_expl_test.mtx')
 train_labels = np.loadtxt('./data/explain_labels.txt', dtype=np.int32)
 test_labels = np.loadtxt('./data/explain_labels_test.txt', dtype=np.int32)
 
@@ -56,6 +58,7 @@ def classify_new(X_train, X_test, y_train, y_test, model):
     metric = precision_recall_fscore_support(y_test, y_pred)
     scores.append(metric)
     print(metric)
+    pickle.dump(model, open(model_path, 'wb'))
     return scores
 
 

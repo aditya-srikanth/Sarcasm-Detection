@@ -5,10 +5,8 @@ import re
 from scipy.sparse import csr_matrix, lil_matrix
 from scipy import io
 
-dataset_path = '../balanced_train.tsv'
-test_path = '../balanced_test.tsv'
+dataset_path = '../data/balanced_train.tsv'
 out_path = 'bush_balanced_train.mtx'
-out_path_test = 'bush_balanced_test.mtx'
 
 # Sentiment wordlist load
 f = open('sentiwordlist', 'r')
@@ -180,7 +178,7 @@ qid = 0
 dict = {}
 word_count = {}
 rev_dict = {}
-index = 1
+index = 0
 
 num_examples = 0
 
@@ -205,7 +203,8 @@ for line in f:
                 word_count[word] = 1
             else:
                 word_count[word] += word_count[word]
-
+    # if num_examples == 1:
+    #     break
 
 i_quotes = index+1
 i_hyp = index+2
@@ -232,9 +231,6 @@ for line in f:
     contents = line.split('\t')
     pos_score = 0
     neg_score = 0
-    if "Scene" in line:
-        qid += 1
-
     if len(contents) >= 2:
         # print(contents)
         word_ids = [1]
@@ -305,6 +301,8 @@ for line in f:
         s_line = s_line.strip()
         f_o1.write(str(line)+'\n')
         # print("line break")
+    # if line_index == 1:
+    #     break
 # print(data[data > 0].size)
 
 # data = pd.DataFrame(data)
@@ -314,62 +312,107 @@ data = data.tocsr()
 print(data.shape)
 io.mmwrite(out_path, data)
 
-# for test
+## testing starts here
 
-# f = open(sys.argv[3],'r')
-# f_o2 = open(sys.argv[4],'w')
+dataset_path = '../data/balanced_test.tsv'
+out_path = 'bush_balanced_test.mtx'
 
-# for line in f:
-# 	s_line = ''
-# 	contents = line.split('\t')
-# 	if "Scene" in line:
-# 		qid +=1
-# 	pos_score = 0
-# 	neg_score = 0
+f = open(dataset_path, 'r', encoding='utf-8-sig')
+num_examples = len(list(f))
+print(index)
+final_features = i_interj
+row = csr_matrix((1, final_features))
+data = lil_matrix((num_examples, final_features))
+line_index = 0
 
-# 	if len(contents) >=2:
-# 		#print(contents)
-# 		word_ids = [1]
-# 		dialogue = contents[0].lower()
-# 		#dialogue = dialogue + ' '+ getActions(dialogue).lower()
-# 		if len(dialogue) == 0:
-# 			continue
-# 		words = re.findall(r"[\w']+|[.,!?;]",dialogue)
+print(str(i_excl)+' '+str(i_quest)+' '+str(i_dotdot)+' '+str(i_interj))
+f = open(dataset_path, 'r', encoding='utf-8-sig')
+f_o1 = open('output.txt', 'w')
+f_o1.write('# Vocabulary size:'+str(index)+'\n')
+for line in f:
+    print(line_index)
+    s_line = ''
+    contents = line.split('\t')
+    pos_score = 0
+    neg_score = 0
+    if len(contents) >= 2:
+        # print(contents)
+        word_ids = [1]
+        dialogue = contents[0].lower()
+        #dialogue = dialogue + ' '+ getActions(dialogue).lower()
+        if len(dialogue) == 0:
+            continue
+        words = re.findall(r"[\w']+|[.,!?;]", dialogue)
 
-# 		first_word = words[0]
-# 		speaker = first_word+':'
-# 		words.append(speaker)
+        # first_word = words[0]
+        # speaker = first_word+':'
+        # words.append(speaker)
 
-# 		s_quotes = getQuotes(input,i_quotes)
-# 		s_hyperbole = getHyperbole(input,i_hyp)
-# 		s_pnpunct = getPosNegPunct(input,i_pnpunct)
-# 		s_pnellip = getPosNegEllipsis(input,i_pnellip)
+        s_quotes = getQuotes(input, i_quotes)
+        s_hyperbole = getHyperbole(input, i_hyp)
+        s_pnpunct = getPosNegPunct(input, i_pnpunct)  # handle None case here
+        s_pnellip = getPosNegEllipsis(
+            input, i_pnellip)  # handle None case here
 
-# 		s_punct = getPunctuation(line,i_excl,i_quest,i_dotdot)
-# 		s_interj = getInterjection(line,i_interj)
+        s_punct = getPunctuation(line, i_excl, i_quest, i_dotdot)
+        s_interj = getInterjection(line, i_interj)
 
+        for word in words:
+            if word in dict:
 
-# 		for word in words:
-# 			if word in dict:
-# 				index = dict[word]
-# 				if word_count[word] >= 3:
-# 					word_ids.append(index)
+                index = dict[word]
+                if word_count[word] >= 3:
+                    word_ids.append(index)
 
-# 		if contents[1].strip().lower() == 'sarcasm':
-# 			label = '+1'
-# 		else:
-# 			label = '-1'
+        if contents[1].strip().lower() == 'sarcasm':
+            label = '+1'
+        else:
+            label = '-1'
 
+        word_ids = list(set(word_ids))
+        word_ids.sort()
+        line = []
+        s_line = ""
+        # print(word_ids)
+        for id in word_ids:
+            s_line += str(id)+':1 '
+            line.append((id, 1))
+        line.append(s_quotes)
+        if s_hyperbole != None:
+            line.append(s_hyperbole)
+        if s_pnpunct != None:
+            line.append(s_pnpunct)
+        line.append(s_interj)
+        line.append(s_pnellip)
+        line.append(s_punct)
+        line.append(s_interj)
 
-# 		word_ids = list(set(word_ids))
-# 		word_ids.sort()
-# 		s_line = label+' '
-# 		#print(word_ids)
-# 		for id in word_ids:
-# 			s_line += str(id)+':1 '
+        for feature in line:
+            if feature == None:
+                continue
+            elif type(feature) != list:
+                # print(feature)
+                data[line_index, (feature[0])-1] = feature[1]
+            if type(feature) == list:
+                for feature_element in feature:
+                    data[line_index, (feature_element[0]) -
+                         1] = feature_element[1]
 
-# 		s_line += s_quotes+' '+s_hyperbole +' '+s_pnpunct+' '+s_pnellip+' '
-# 		s_line += s_punct+' '+s_interj+' '
-# 		s_line += '# '+line
-# 		s_line = s_line.strip()
-# f_o2.write(s_line+'\n')
+        line_index += 1
+        s_line += str(s_quotes)+' '+str(s_hyperbole) + ' '+str(s_pnpunct) + \
+            ' '+str(s_pnellip)+' ' + str(s_punct)+' '+str(s_interj)+' '
+        # s_line += '# '+line
+        s_line = s_line.strip()
+        f_o1.write(str(line)+'\n')
+        # print("line break")
+    # if line_index == 1:
+    #     break
+# print(data[data > 0].size)
+
+# data = pd.DataFrame(data)
+# with open('buschmeier.pkl', 'wb') as f:
+#     pickle.dump(data, f)
+data = data.tocsr()
+print(data.shape)
+io.mmwrite(out_path, data)
+

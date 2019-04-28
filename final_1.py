@@ -16,16 +16,20 @@ import pickle
 model_path = "LIEB_MODEL.pkl"
 scores = []
 stats_path = "./NEW_STATS_1/L_EXPLAIN"
-train = io.mmread('./lieb/lieb_expl_train.mtx')
-test = io.mmread('./lieb/lieb_expl_test.mtx')
-train_labels = np.loadtxt('./data/explain_labels.txt', dtype=np.int32)
-test_labels = np.loadtxt('./data/explain_labels_test.txt', dtype=np.int32)
+train = io.mmread('./lieb/lieb_balanced_train.mtx')
+test = io.mmread('./lieb/lieb_balanced_test.mtx')
+train_labels = np.loadtxt('./data/balanced_train_labels.txt', dtype=np.int32)
+test_labels = np.loadtxt('./data/balanced_test_labels.txt', dtype=np.int32)
 
+print(type(test_labels))
+train_labels = np.array([int(label) for label in train_labels])
+test_labels = np.array([int(label) for label in test_labels])
+print(train_labels)
 
 print(train.shape, test.shape)
 
 svmmodel = svm.SVC(gamma='scale', class_weight='balanced',
-                   C=20.0, cache_size=1000)
+                   C=20.0, cache_size=1000,verbose=True)
 
 
 def classify(data, labels, model):
@@ -49,11 +53,13 @@ def classify(data, labels, model):
 
 
 def classify_new(X_train, X_test, y_train, y_test, model):
-    print('Started Training')
+    print('Started Converting to CSR')
     X_train = X_train.tocsr()
     X_test = X_test.tocsr()
     scores = []
+    print('Started Training')
     model.fit(X_train, y_train.ravel())
+    print('done fitting')
     y_pred = model.predict(X_test)
     metric = precision_recall_fscore_support(y_test, y_pred)
     scores.append(metric)

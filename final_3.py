@@ -3,6 +3,7 @@ import numpy as np
 from scipy import sparse, io
 
 from sklearn import svm
+from sklearn.linear_model import SGDClassifier 
 from sklearn.model_selection import KFold
 from sklearn.metrics import precision_recall_fscore_support
 from sklearn.feature_extraction.text import CountVectorizer
@@ -16,16 +17,17 @@ import pickle
 model_path = "BUSH_MODEL.pkl"
 scores = []
 stats_path = "./NEW_STATS_1/J_EXPLAIN"
-train = io.mmread('./Bush/bush_balanced_train.mtx')
-test = io.mmread('./Bush/bush_balanced_test.mtx')
-train_labels = np.loadtxt('./data/balanced_train_labels.txt', dtype=np.int32)
-test_labels = np.loadtxt('./data/balanced_test_labels.txt', dtype=np.int32)
+train = io.mmread('./Bush/bush_unbalanced_train.mtx')
+test = io.mmread('./Bush/bush_unbalanced_test.mtx')
+train_labels = np.loadtxt('./data/unbalanced_train_labels.txt', dtype=np.int32)
+test_labels = np.loadtxt('./data/unbalanced_test_labels.txt', dtype=np.int32)
 
 
 print(train.shape, test.shape)
 
-svmmodel = svm.SVC(gamma='scale', class_weight='balanced',
-                   C=20.0, cache_size=1000,verbose=True)
+# svmmodel = svm.SVC(gamma='scale', class_weight='balanced',
+                #    C=20.0, cache_size=1000,verbose=True)
+svmmodel = SGDClassifier(early_stopping=True,max_iter=10000,n_jobs=-1,verbose=0)
 
 
 def classify(data, labels, model):

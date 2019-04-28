@@ -9,8 +9,8 @@ import re
 from scipy.sparse import csr_matrix, lil_matrix
 from scipy import io
 
-dataset_path = '../data/balanced_test.tsv'
-out_path = 'lieb_balanced_test.mtx'
+dataset_path = '../data/unbalanced_train.tsv'
+out_path = 'lieb_unbalanced_train.mtx'
 
 f = open(dataset_path, 'r', encoding="utf-8-sig")
 qid = 0
@@ -47,9 +47,9 @@ line_count = 0
 for line in f:
     line_count += 1
     contents = line.split('\t')
-    if len(contents) == 2 and "Scene" not in line:
+    if len(contents) == 3 and "Scene" not in line:
         dialogue = contents[0].lower()
-
+        # print(dialogue)
         if len(dialogue) == 0:
             continue
 
@@ -145,10 +145,10 @@ def gen_features(dataset_path,out_path):
     # print(dict)
 
 
-dataset_path = '../data/balanced_train.tsv'
-out_path = 'lieb_balanced_train.mtx'
+dataset_path = '../data/unbalanced_train.tsv'
+out_path = 'lieb_unbalanced_train.mtx'
 gen_features(dataset_path,out_path)
 
-dataset_path = '../data/balanced_test.tsv'
-out_path = 'lieb_balanced_test.mtx'
+dataset_path = '../data/unbalanced_test.tsv'
+out_path = 'lieb_unbalanced_test.mtx'
 gen_features(dataset_path,out_path)

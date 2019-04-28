@@ -5,8 +5,8 @@ import re
 from scipy.sparse import csr_matrix, lil_matrix
 from scipy import io
 
-dataset_path = '../data/balanced_train.tsv'
-out_path = 'bush_balanced_train.mtx'
+dataset_path = '../data/unbalanced_train.tsv'
+out_path = 'bush_unbalanced_train.mtx'
 
 # Sentiment wordlist load
 f = open('sentiwordlist', 'r')
@@ -186,7 +186,7 @@ num_examples = 0
 for line in f:
     contents = line.split('\t')
     num_examples += 1
-    if len(contents) == 2 and "Scene" not in line:
+    if len(contents) == 3 and "Scene" not in line:
         dialogue = contents[0].lower()
         #dialogue = dialogue + ' '+ getActions(dialogue).lower()
         if len(dialogue) == 0:
@@ -314,8 +314,8 @@ io.mmwrite(out_path, data)
 
 ## testing starts here
 
-dataset_path = '../data/balanced_test.tsv'
-out_path = 'bush_balanced_test.mtx'
+dataset_path = '../data/unbalanced_test.tsv'
+out_path = 'bush_unbalanced_test.mtx'
 
 f = open(dataset_path, 'r', encoding='utf-8-sig')
 num_examples = len(list(f))

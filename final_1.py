@@ -3,6 +3,7 @@ import numpy as np
 from scipy import sparse, io
 
 from sklearn import svm
+from sklearn.linear_model import SGDClassifier
 from sklearn.model_selection import KFold
 from sklearn.metrics import precision_recall_fscore_support
 from sklearn.feature_extraction.text import CountVectorizer
@@ -16,10 +17,10 @@ import pickle
 model_path = "LIEB_MODEL.pkl"
 scores = []
 stats_path = "./NEW_STATS_1/L_EXPLAIN"
-train = io.mmread('./lieb/lieb_balanced_train.mtx')
-test = io.mmread('./lieb/lieb_balanced_test.mtx')
-train_labels = np.loadtxt('./data/balanced_train_labels.txt', dtype=np.int32)
-test_labels = np.loadtxt('./data/balanced_test_labels.txt', dtype=np.int32)
+train = io.mmread('./lieb/lieb_unbalanced_train.mtx')
+test = io.mmread('./lieb/lieb_unbalanced_test.mtx')
+train_labels = np.loadtxt('./data/unbalanced_train_labels.txt', dtype=np.int32)
+test_labels = np.loadtxt('./data/unbalanced_test_labels.txt', dtype=np.int32)
 
 print(type(test_labels))
 train_labels = np.array([int(label) for label in train_labels])
@@ -28,9 +29,9 @@ print(train_labels)
 
 print(train.shape, test.shape)
 
-svmmodel = svm.SVC(gamma='scale', class_weight='balanced',
-                   C=20.0, cache_size=1000,verbose=True)
-
+# svmmodel = svm.SVC(gamma='scale', class_weight='balanced',
+#                    C=20.0, cache_size=1000,verbose=True)
+svmmodel = SGDClassifier(early_stopping=True,max_iter=10000,n_jobs=-1,verbose=0)
 
 def classify(data, labels, model):
     # 10 is pseudo random number
@@ -40,8 +41,7 @@ def classify(data, labels, model):
     for train, test in kfold.split(data):
         print(i)
         data = data.tocsr()
-        X_train, X_test, y_train, y_test = data[train,
-                                                :], data[test, :], labels[train], labels[test]
+        X_train, X_test, y_train, y_test = data[train,:], data[test, :], labels[train], labels[test]
         model.fit(X_train, y_train.ravel())
         y_pred = model.predict(X_test)
         metric = precision_recall_fscore_support(y_test, y_pred)

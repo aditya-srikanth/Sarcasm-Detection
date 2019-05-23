@@ -11,7 +11,7 @@ This repo contains all the experiments conducted for sarcasm detection
 (Need to add citations)
 
 ### Prerequisites
-sklearn, scipy
+sklearn, scipy, gensim
 
 ### Installation
 Install the packages mentioned above and python 3.6 has been used for all the experiments.
@@ -22,6 +22,13 @@ Note:- All data is stores as scipy sparse matrices (To enable faster processing 
 Each subfolder contains a script for each feature generation.
 The feature generation steps are explained in respective papers and also we have looked at AdityaJoshi
 github repository for reference in terms of implementation. https://github.com/adityajo/ComputationalSarcasm
+
+All the paper named folders generate the respective features.
+
+./wembedding
+This folder contains the script for generating word-embedding based similarity features.
+You can load the .bin or .txt pre trained vectors like Glove or Word2vec using **gensim**.
+
 
 Add the train dataset and test dataset path and the required output path.
 

@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="a67de21c-d2df-49ff-adb0-f6475f41d5c7" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/Bush/bush_features.py" beforeDir="false" afterPath="$PROJECT_DIR$/Bush/bush_features.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Bush/output.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Bush/output.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Gonzalez/gonz_features.py" beforeDir="false" afterPath="$PROJECT_DIR$/Gonzalez/gonz_features.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Lieb/lieb.py" beforeDir="false" afterPath="$PROJECT_DIR$/Lieb/lieb.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Lieb/out" beforeDir="false" afterPath="$PROJECT_DIR$/Lieb/out" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/NEW_STATS_1/J_EXPLAIN_stats_0.txt" beforeDir="false" afterPath="$PROJECT_DIR$/NEW_STATS_1/J_EXPLAIN_stats_0.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/all_features.py" beforeDir="false" afterPath="$PROJECT_DIR$/all_features.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/final_3.py" beforeDir="false" afterPath="$PROJECT_DIR$/final_3.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/joshi/jc.py" beforeDir="false" afterPath="$PROJECT_DIR$/joshi/jc.py" afterDir="false" />
+    </list>
+    <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="ProjectId" id="1RssowIuoRey8aU7TbuXu2rfByL" />
+  <component name="RunDashboard">
+    <option name="ruleStates">
+      <list>
+        <RuleState>
+          <option name="name" value="ConfigurationTypeDashboardGroupingRule" />
+        </RuleState>
+        <RuleState>
+          <option name="name" value="StatusDashboardGroupingRule" />
+        </RuleState>
+      </list>
+    </option>
+  </component>
+  <component name="SvnConfiguration">
+    <configuration />
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="a67de21c-d2df-49ff-adb0-f6475f41d5c7" name="Default Changelist" comment="" />
+      <created>1570467317588</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1570467317588</updated>
+    </task>
+    <servers />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+</project>

@@ -1,6 +1,23 @@
 # Sarcasm-Detection
 This repo contains all the experiments conducted for sarcasm detection
 
+# MHA-BiLSTM
+
+## Data Preprocessing
+For processing the raw text and converting them to a sequence of numbers where each number is the index number of the word embedding metrix which contains the word embeddings.
+
+### Step1: Parameters
+1. dataDistributionType = "Balanced" or"Unbalanced"
+2. SheetName = "balanced" or "Unbalanced"
+
+### Step2: Model training
+Run model.py for model execution and HTML page generation based on the attention scores of the sentence
+
+### Step3: Ensemble Model training
+Run ensemble_result.py for results of the ensemble model of SVM and MHA-BiLSTM.
+
+# SVM Model
+
 ## Getting Started
 1. Lieb Feature (L)
 2. Gonzalez Features (G)

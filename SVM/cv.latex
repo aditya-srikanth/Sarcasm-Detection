@@ -1,0 +1,140 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Medium Length Professional CV
+% LaTeX Template
+% Version 2.0 (8/5/13)
+%
+% This template has been downloaded from:
+% http://www.LaTeXTemplates.com
+%
+% Original author:
+% Rishi Shah 
+%
+% Important note:
+% This template requires the resume.cls file to be in the same directory as the
+% .tex file. The resume.cls file provides the resume style used for structuring the
+% document.
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%----------------------------------------------------------------------------------------
+%	PACKAGES AND OTHER DOCUMENT CONFIGURATIONS
+%----------------------------------------------------------------------------------------
+
+\documentclass{resume} % Use the custom resume.cls style
+
+\usepackage[left=0.75in,top=0.6in,right=0.75in,bottom=0.6in]{geometry} % Document margins
+\usepackage{enumitem}
+\newcommand{\tab}[1]{\hspace{.2667\textwidth}\rlap{#1}}
+\newcommand{\itab}[1]{\hspace{0em}\rlap{#1}}
+\name{Vishnu Teja Narapareddy} % Your name
+\address{Hyderabad, Telengana, India} % Your phone number and email
+\address{+91 7036828555}
+\address{f20160086@hyderabad.bits-pilani.ac.in }
+\begin{document}
+%----------------------------------------------------------------------------------------
+%	RESEARCH INTEREST
+%----------------------------------------------------------------------------------------
+
+
+%----------------------------------------------------------------------------------------
+%	EDUCATION SECTION
+%----------------------------------------------------------------------------------------
+
+\begin{rSection}{Education}
+
+{\bf Birla Institute of Technology and Science, Pilani}\hfill {August 2016 - Present}\\
+Bachelors in Engineering (Hons.) Computer Science  \hfill {\em Hyderabad, India}  \\
+\hfill{ GPA: 8.43/10}\\
+\\{\bf AECS	Magnolia Maaruti Public School} \hfill {August 2014 - July 2016}\\
+Secondary School (CBSE) \hfill {\em Bangalore, India} \\
+ \hfill{ Percentage: 93.6}\\
+\\{\bf Narayana	E-Techno School	} \hfill {July 2014} \\
+Secondary School (CBSE) \hfill {\em Bangalore, India} \\
+ \hfill{ GPA: 10/10 }
+\end{rSection}
+
+%----------------------------------------------------------------------------------------
+%	EDUCATION SECTION
+%----------------------------------------------------------------------------------------
+\renewcommand{\labelitemi }{$\cdot$}
+\begin{rSection}{Work Experience}
+
+{\bf \large{ Amazon }}\hfill{May 2019 - July 2019}\\
+{\em Software Development Engineer - Intern }\hfill{ Hyderabad, India}
+\begin{itemize}[noitemsep]
+    \item Designed and developed an AWS Serverless application that automates email acknowledgements to customer feedback. This application increases customer satisfaction with the Amazon Brand. Deployed the application to production on amazon.com website.
+    \item  Developed an AWS Serverless API that queries e-mail acknowledgement database and returns requested details. API supports pagination and custom filter features. Deployed API to production for internal use.
+\end{itemize}
+
+{\bf \large{Pixxel}}\hfill{August 2018 - October 2018}\\
+{\em AI Engineer - Remote Intern}\hfill{Hyderabad, India}
+\begin{itemize}[noitemsep]
+    \item Pixxel is a space-tech startup that develops artificial intelligence (AI)-backed technology to analyse real-time remote sensing data collected by a nanosatellite constellation.
+    \item Worked on solving the problem of identifying illegal mining sites in Rajasthan, India using satellite data. Developed a spatial-spectral Deep Learning model that uses 1D and 2D CNN's to extract abstract features. Softmax regression classifier is used to predict class labels. 
+    \item Mining surface area compared across time and verified whether it is under legal jurisdiction.
+\end{itemize}
+
+
+{\bf \large{ ISRO - Regional Remote Sensing Centre, Jodhpur }}\hfill{ May 2018- July 2018}\\
+{ \em Research Intern }\hfill {Jodhpur, India}
+\begin{itemize}[noitemsep]
+    \item Worked on a project to delineate impact crater boundaries on Martian surfaces from Digital Elevation Model of Mars.
+    \item Applied numerous computer vision techniques like wavelet transform, watershed, hough transform and canny edge detection to extract crater boundary using opencv.
+    \item Implemented deep learning solution using CNN auto encoder-decoder network based on U-Net architecture. The model performed well on other planetary surfaces including Moon and Earth.
+\end{itemize}
+\end{rSection}
+
+\newpage
+%--------------------------------------------------------------------------------
+%    Projects And Seminars
+%-----------------------------------------------------------------------------------------------
+\begin{rSection}{Projects}
+
+{\bf Aspect Based Sentiment Analysis} \hfill{August 2019 - Present} \\
+{\em Undergraduate Research Project under Prof. Aruna Malapati } {}
+
+The aim is to identify fine-grained opinion polarity associated with aspects in the sentence. It involved applying latest Deep Learning solutions used in the field of Natural Language Processing on the SemEval 2014 Restaurant and Laptop Dataset. Developed a Deep Learning solution based on Bi-LSTM and self attention. In addition, developed a stacked CNN + BiLSTM with Attention Over Attention model and compared performances of these models with state-of-the art models.
+
+{\bf Sarcasm Detection } \hfill {January 2019 - April 2019} \\ 
+{ \em Undergraduate Research Project under Prof. Aruna Malapati } {}
+
+Detecting sarcasm in a sentence is a challenging problem and is explored through this project with the use of sarcastic tweet data. Engineered new features based on phrase polarities and shift in sentiment throughout the sentence. In addition, modeled a Deep Learning solution based on Bi-LSTM and tweet context. Performed a case study in comparing feature engineering methods with deep learning solutions.
+
+{\bf Recommender System for Movies } \hfill { November 2018 - December 2018} {} {}
+
+In the age of on-demand video, movie recommendations are increasingly important for streaming sites to capture the attention of users. Implemented movie recommendation using user-movie watch history and applied collaborative filtering techniques utilising cosine-similarity scores between users and movies to recommend movies. Further utilised Singular Value Decomposition technique to improve recommendation accuracy by using latent factors concept. Trained the system using stochastic gradient descent to minimize recommendation errors.
+
+{\bf Statistical Machine Translation } \hfill { September 2018 - October 2018} {} {}
+
+The aim is to translate sentences from English to Dutch and vice versa. Implemented sentence translation using IBM Model 1, 2 and 3. Obtained scores by using the EM Algorithm. In addition, implemented phase-based translation model. Performed a comparative study of the various techniques implemented.
+
+{\bf Music Lyrics Search Engine } \hfill { August 2018 - September 2018} {} {}
+
+Developed a search engine to search for songs using part of the lyrics. Songs are represented in vector space using Tf-Idf representations. Built an index of songs with their lyrics using positional indexing. Implemented Trie data structure to represent words which enabled auto complete suggestions to the users. 
+\end{rSection}
+%----------------------------------------------------------------------------------------
+%	TECHNICAL SKILLS
+%----------------------------------------------------------------------------------------
+
+\begin{rSection}{ Technical Skills }
+
+\begin{tabular}{ @{} >{\bfseries}l @{\hspace{6ex}} l }
+Programming Languages \ & C, C++, Java, Python \\
+Frameworks \& Libraries & PyTorch, Keras, Numpy, Pandas, Scikit-learn \\
+Cloud Services & AWS Services (Lambda, SQS, SNS, API Gateway, DynamoDB)\\
+\end{tabular}
+
+\end{rSection}
+
+%----------------------------------------------------------------------------------------
+% Extra Curricular
+%----------------------------------------------------------------------------------------
+
+\begin{rSection}{Coursework} \itemsep -3pt
+\begin{itemize}
+    \item {\bf Core Computer Science Courses:} Operating Systems, Compute Architecture, Data Structures and Algorithms, Database Management Systems, Object Oriented Programming, Principles of Programming Language, Logic in Computer Science, Computer Networks, Compiler Construction, Design and Analysis of Algorithms
+    \item {\bf Electives:} Machine Learning, Information Retrieval, Software Engineering, 2 Undergraduate Research Projects in the field of Natural Language Processing.
+    \item {\bf Mathematics:}  Engineering Mathematics(I), Engineering Mathematics(II), Engineering Mathematics(III), Discrete Mathematics for Computer Science
+\end{itemize}
+\end{rSection}
+\end{document}

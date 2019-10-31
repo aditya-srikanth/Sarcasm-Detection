@@ -1,0 +1,7 @@
+F-Score Mean: 0.728996 
+P-Score Mean: 0.721201 
+R-Score Mean: 0.736962 
+95.0 confidence interval: 72.9 and 72.9 
+Precision: 0.721200583279326
+Recall: 0.7369619205298014
+F-Score: 0.7289960694398951

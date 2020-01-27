@@ -1,5 +1,5 @@
 # Sarcasm-Detection
-This repo contains all the experiments conducted for sarcasm detection
+This repo contains all the experiments conducted for sarcasm detection as published in "Sarcasm Detection Using Multi-Head Attention Based Bidirectional LSTM"
 
 # MHA-BiLSTM
 
